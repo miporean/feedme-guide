@@ -823,45 +823,6 @@ const SITE_DATA = {
               </div>
             </details>
           `
-        },
-        {
-          id: "login-issues",
-          title: "Login Issues",
-          description: "Troubleshoot common login problems including forgotten passwords and account lockouts.",
-          tags: ["login", "password", "access"],
-          articleIcon: "🔑",
-          articleColor: "#3B82F6",
-          scribeEmbed: "",
-          content: `<h2>Common Login Issues</h2>
-            <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Forgot Password</h4><p>Click <strong>"Forgot Password"</strong> on the login page. Enter your registered email to receive a password reset link.</p></div></div>
-            <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Account Locked</h4><p>After 5 failed login attempts, your account is temporarily locked. Wait 15 minutes or contact your administrator to unlock.</p></div></div>
-            <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Browser Cache Issues</h4><p>Clear your browser cache and cookies, then try logging in again. Use <strong>Ctrl+Shift+Delete</strong> to access cache clearing settings.</p></div></div>`
-        },
-        {
-          id: "menu-not-showing",
-          title: "Menu Not Showing",
-          description: "Fix issues where menu items are not appearing on the customer-facing app.",
-          tags: ["menu", "display", "visibility"],
-          articleIcon: "📋",
-          articleColor: "#10B981",
-          scribeEmbed: "",
-          content: `<h2>Possible Causes & Solutions</h2>
-            <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Check Product Status</h4><p>Go to <strong>Menu → Products</strong> and ensure the product's publish toggle is <strong>ON</strong>.</p></div></div>
-            <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Check Menu Scheduler</h4><p>Verify that the item isn't under a scheduler that has expired or hasn't started yet.</p></div></div>
-            <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Check Catalog Assignment</h4><p>Ensure the product is assigned to an active catalog that is published.</p></div></div>`
-        },
-        {
-          id: "payment-errors",
-          title: "Payment Errors",
-          description: "Resolve common payment processing errors and transaction failures.",
-          tags: ["payment", "transaction", "billing"],
-          articleIcon: "💳",
-          articleColor: "#8B5CF6",
-          scribeEmbed: "",
-          content: `<h2>Common Payment Errors</h2>
-            <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Payment Gateway Timeout</h4><p>Check your internet connection. If stable, the payment gateway may be experiencing downtime. Try again in a few minutes.</p></div></div>
-            <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Transaction Declined</h4><p>Ask the customer to verify their card details or try a different payment method.</p></div></div>
-            <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Double Charge</h4><p>Check the transaction log in <strong>Reports → Transactions</strong>. If a double charge occurred, process a refund from the transaction details page.</p></div></div>`
         }
       ]
     }
