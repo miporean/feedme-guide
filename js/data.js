@@ -590,16 +590,8 @@ const SITE_DATA = {
             <div class="step">
               <div class="step-num">3</div>
               <div class="step-content">
-                <h4>Notify FeedMe Support Team</h4>
-                <p>Contact the <strong>Feedme Mipos - Tech Support (Dealer)</strong> group via WhatsApp with the following message template:</p>
-                <div style="background:#F3F4F6;padding:14px 18px;border-radius:8px;margin:10px 0;font-family:monospace;font-size:14px;line-height:1.7;">
-                  Hi FeedMe Team,<br>
-                  Restaurant Name : [Restaurant Name]<br>
-                  Payout Account : [Checked]<br>
-                  RMS Form : [Checked]<br>
-                  Action : Enable (epayment, QR payment, terminal card payment)<br>
-                  <em>(confirm with customer which payment method they need)</em>
-                </div>
+                <h4>Inform MIPOS Support Team</h4>
+                <p>Once the payout account and application forms are completed, inform the <strong>MIPOS Support Team</strong> to proceed with enabling the payment integration for your restaurant.</p>
               </div>
             </div>
 
