@@ -45,6 +45,7 @@
       'connect-setup': 'tag-connect',
       'restaurant-operation': 'tag-operations',
       'hrm': 'tag-hrm',
+      'integration-setup': 'tag-integration',
       'troubleshooting': 'tag-troubleshooting'
     };
     return map[catId] || 'tag-menu';
@@ -53,8 +54,14 @@
   // Portal subcategory IDs
   const PORTAL_CATS = ['menu-setup', 'connect-setup', 'restaurant-operation', 'hrm'];
 
+  const INTEGRATION_CATS = ['integration-setup'];
+
   function isPortalCategory(catId) {
     return PORTAL_CATS.includes(catId);
+  }
+
+  function isIntegrationCategory(catId) {
+    return INTEGRATION_CATS.includes(catId);
   }
 
   function getCatLabel(catId) {
@@ -63,6 +70,7 @@
       'connect-setup': 'Connect',
       'restaurant-operation': 'Operations',
       'hrm': 'HRM',
+      'integration-setup': 'Integration',
       'troubleshooting': 'Troubleshooting'
     };
     return map[catId] || catId;
@@ -99,8 +107,10 @@
 
     // Build top-level sections for home
     const portalCats = SITE_DATA.categories.filter(c => c.section === 'portal');
+    const integrationCats = SITE_DATA.categories.filter(c => c.section === 'integration');
     const troubleshootingCat = findCategory('troubleshooting');
     const portalArticleCount = portalCats.reduce((sum, c) => sum + c.articles.length, 0);
+    const integrationArticleCount = integrationCats.reduce((sum, c) => sum + c.articles.length, 0);
     const tsArticleCount = troubleshootingCat ? troubleshootingCat.articles.length : 0;
 
     const topSections = [
@@ -121,6 +131,15 @@
         bgColor: '#EEF2FF',
         description: 'POS system setup and usage tutorials.',
         count: 0
+      },
+      {
+        id: 'integration',
+        name: 'Integration Setup',
+        icon: '🔌',
+        color: '#10B981',
+        bgColor: '#ECFDF5',
+        description: 'Payment integration, delivery platforms, e-invoicing, and accounting software.',
+        count: integrationArticleCount
       },
       {
         id: 'troubleshooting',
@@ -330,21 +349,80 @@
     window.scrollTo(0, 0);
   }
 
+  // ===== RENDER INTEGRATION LANDING PAGE =====
+  function renderIntegration() {
+    const cat = findCategory('integration-setup');
+    if (!cat) { renderHome(); return; }
+
+    updateNav('integration');
+
+    app.innerHTML = `
+      <section class="category-hero">
+        <div class="breadcrumb">
+          <a href="index.html" data-page="home">Home</a>
+          <span>›</span>
+          Integration Setup
+        </div>
+        <div class="category-hero-content">
+          <div class="category-hero-icon" style="background: ${cat.bgColor}; color: ${cat.color}; font-size: 32px;">
+            ${cat.icon}
+          </div>
+          <div>
+            <h1>${cat.name}</h1>
+            <p class="subtitle">${cat.description}</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="category-articles">
+        <div class="ts-grid">
+          ${cat.articles.map((article, i) => {
+      const color = article.articleColor || cat.color;
+      const icon = article.articleIcon || cat.icon;
+      const tags = (article.tags || []).slice(0, 3);
+      return `
+            <a class="ts-card animate-in" data-article="${article.id}" style="animation-delay: ${i * 0.08}s; --card-accent: ${color};">
+              <div class="ts-card-header">
+                <div class="ts-card-icon" style="background: ${color}15; color: ${color};">
+                  ${icon}
+                </div>
+                <span class="ts-card-arrow">${icons.arrow}</span>
+              </div>
+              <h3 class="ts-card-title">${article.title}</h3>
+              <p class="ts-card-desc">${article.description}</p>
+              ${tags.length ? `
+                <div class="ts-card-tags">
+                  ${tags.map(tag => `<span class="ts-tag" style="background: ${color}12; color: ${color}; border: 1px solid ${color}25;">${tag}</span>`).join('')}
+                </div>
+              ` : ''}
+            </a>`;
+    }).join('')}
+        </div>
+      </section>
+    `;
+
+    setupClickHandlers();
+    window.scrollTo(0, 0);
+  }
+
   // ===== RENDER CATEGORY PAGE =====
   function renderCategory(catId) {
     // Handle virtual categories
     if (catId === 'portal') { return renderPortal(); }
     if (catId === 'pos') { return renderPOS(); }
+    if (catId === 'integration') { return renderIntegration(); }
 
     const cat = findCategory(catId);
     if (!cat) { renderHome(); return; }
 
-    updateNav(isPortalCategory(catId) ? 'portal' : catId);
+    updateNav(isPortalCategory(catId) ? 'portal' : isIntegrationCategory(catId) ? 'integration' : catId);
 
-    // Build breadcrumb with Portal parent if applicable
+    // Build breadcrumb with parent if applicable
     const breadcrumbParts = [`<a href="index.html" data-page="home">Home</a><span>›</span>`];
     if (isPortalCategory(catId)) {
       breadcrumbParts.push(`<a href="index.html?category=portal" data-category="portal">Portal</a><span>›</span>`);
+    } else if (isIntegrationCategory(catId)) {
+      breadcrumbParts.push(`<a href="index.html?category=integration" data-category="integration">Integration</a><span>›</span>`);
     }
     breadcrumbParts.push(cat.name);
 
@@ -401,7 +479,7 @@
     if (!result) { renderHome(); return; }
 
     const { article, category } = result;
-    updateNav(isPortalCategory(category.id) ? 'portal' : category.id);
+    updateNav(isPortalCategory(category.id) ? 'portal' : isIntegrationCategory(category.id) ? 'integration' : category.id);
 
     // Build view toggle if scribeEmbed is available
     let viewToggle = '';
@@ -448,7 +526,7 @@
         <div class="breadcrumb">
           <a href="index.html" data-page="home">Home</a>
           <span>›</span>
-          ${isPortalCategory(category.id) ? `<a href="index.html?category=portal" data-category="portal">Portal</a><span>›</span>` : ''}
+          ${isPortalCategory(category.id) ? `<a href="index.html?category=portal" data-category="portal">Portal</a><span>›</span>` : isIntegrationCategory(category.id) ? `<a href="index.html?category=integration" data-category="integration">Integration</a><span>›</span>` : ''}
           <a href="index.html?category=${category.id}" data-category="${category.id}">${category.name}</a>
           <span>›</span>
           ${article.title}

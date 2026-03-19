@@ -93,8 +93,9 @@ img {
   color: var(--dark);
 }
 
-.logo-icon-svg {
+.logo-icon-img {
   flex-shrink: 0;
+  border-radius: 8px;
 }
 
 .nav {
