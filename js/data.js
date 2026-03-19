@@ -643,183 +643,435 @@ const SITE_DATA = {
           `
         },
         {
-          id: "accounting-software-integration",
-          title: "Accounting Software Integration",
-          description: "Integrate FeedMe with accounting software including AutoCount, SQL, BUKKU, XERO, and BIZTORY.",
-          tags: ["integration", "accounting", "bukku", "xero", "biztory", "autocount", "sql"],
+          id: "autocount-integration",
+          title: "AutoCount Accounting Integration",
+          description: "Export FeedMe sales data and import into AutoCount via Excel — with step-by-step mapping and import guide.",
+          tags: ["integration", "accounting", "autocount", "excel", "import"],
           content: `
             <h2>Overview</h2>
-            <p>FeedMe integrates with popular accounting software to simplify financial management — reducing manual data entry, improving accuracy, and saving time. Sales data from FeedMe POS flows into your accounting system either via <strong>API (auto-sync)</strong> or <strong>Excel import</strong>.</p>
-
-            <h2>Supported Accounting Software</h2>
-            <table style="width:100%;border-collapse:collapse;margin:12px 0;">
-              <tr style="background:#F0FDF4;"><th style="text-align:left;padding:10px;border:1px solid #E5E7EB;">Integration Type</th><th style="text-align:left;padding:10px;border:1px solid #E5E7EB;">Software</th></tr>
-              <tr><td style="padding:10px;border:1px solid #E5E7EB;"><strong>API Integration</strong> (auto-sync)</td><td style="padding:10px;border:1px solid #E5E7EB;">BUKKU, XERO, BIZTORY</td></tr>
-              <tr><td style="padding:10px;border:1px solid #E5E7EB;"><strong>Import Integration</strong> (Excel)</td><td style="padding:10px;border:1px solid #E5E7EB;">AutoCount, SQL</td></tr>
-            </table>
+            <p>Simplify your accounting tasks by exporting sales data from FeedMe POS and importing it into <strong>AutoCount</strong> using Excel templates. This integration uses the <strong>Excel Import</strong> method.</p>
 
             <div class="info-box" style="background:#EBF5FF;border-left:4px solid #3B82F6;padding:16px;border-radius:8px;margin:16px 0;">
-              <h4 style="margin-top:0;">📌 Key Technical Details</h4>
+              <h4 style="margin-top:0;">📌 Key Info</h4>
               <ul style="margin-bottom:0;">
-                <li><strong>Data Capture Period:</strong> Defaults to <strong>12:00 AM – 11:59 PM</strong>. Over-day data is split into two different days based on the bill time.</li>
-                <li><strong>Tax Adjustments:</strong> Handles SST/SV and rounding adjustments automatically.</li>
-                <li><strong>Grouping Methods:</strong> All integrations support <strong>Group by Day</strong> (daily totals), <strong>Group by Invoice</strong> (per receipt), or <strong>Group by Day &amp; Category</strong> (category-specific sales codes).</li>
+                <li><strong>Integration Type:</strong> Excel Import (manual download &amp; import)</li>
+                <li><strong>Data Capture:</strong> 12:00 AM – 11:59 PM daily. Over-day data splits by bill time.</li>
+                <li><strong>Tax Adjustments:</strong> SST/SV and rounding handled automatically.</li>
               </ul>
             </div>
 
-            <hr style="border:none;border-top:2px solid #E5E7EB;margin:28px 0;">
+            <h2>Step 1 — Obtain Account Codes</h2>
+            <p>Gather the following <strong>Account Codes</strong> from your AutoCount software before starting:</p>
+            <table style="width:100%;border-collapse:collapse;margin:12px 0;">
+              <tr style="background:#F0FDF4;"><th style="text-align:left;padding:10px;border:1px solid #E5E7EB;">Code Type</th><th style="text-align:left;padding:10px;border:1px solid #E5E7EB;">Description</th></tr>
+              <tr><td style="padding:10px;border:1px solid #E5E7EB;">Sales Account Code</td><td style="padding:10px;border:1px solid #E5E7EB;">Revenue account for sales transactions</td></tr>
+              <tr><td style="padding:10px;border:1px solid #E5E7EB;">Debtor Account Code</td><td style="padding:10px;border:1px solid #E5E7EB;">Accounts receivable / debtor code</td></tr>
+              <tr><td style="padding:10px;border:1px solid #E5E7EB;">Rounding Account Code</td><td style="padding:10px;border:1px solid #E5E7EB;">For rounding adjustments</td></tr>
+              <tr><td style="padding:10px;border:1px solid #E5E7EB;">Multi-charges</td><td style="padding:10px;border:1px solid #E5E7EB;">Service Charge, etc.</td></tr>
+              <tr><td style="padding:10px;border:1px solid #E5E7EB;">Discount Account Code</td><td style="padding:10px;border:1px solid #E5E7EB;">For discount entries</td></tr>
+              <tr><td style="padding:10px;border:1px solid #E5E7EB;">Payment Method Codes</td><td style="padding:10px;border:1px solid #E5E7EB;">Cash, Credit Card, E-Wallet, etc.</td></tr>
+            </table>
 
-            <h2>📗 AutoCount Integration (Excel Import)</h2>
-            <p>Export sales data from FeedMe and import it into AutoCount via Excel.</p>
+            <h2>Step 2 — Choose Grouping Method</h2>
+            <p>Decide how sales data should be grouped when exported:</p>
+            <div class="step">
+              <div class="step-num">A</div>
+              <div class="step-content">
+                <h4>Group by Day</h4>
+                <p>One invoice per day. Payments are created as separate receipts. Best for simple daily summaries.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">B</div>
+              <div class="step-content">
+                <h4>Group by Invoice</h4>
+                <p>Every single FeedMe receipt is synced as an individual entry. Best for detailed transaction tracking.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">C</div>
+              <div class="step-content">
+                <h4>Group by Day &amp; Category</h4>
+                <p>Daily invoices with products mapped to category-specific sales codes (e.g., Food vs. Beverages pointing to different accounts).</p>
+              </div>
+            </div>
 
-            <details style="margin:12px 0;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;">
-              <summary style="padding:14px 18px;background:#F9FAFB;cursor:pointer;font-weight:600;">View AutoCount Setup Guide</summary>
-              <div style="padding:16px 18px;">
-                <h4>Phase 1 — Preparation</h4>
-                <p>Obtain the following <strong>Account Codes</strong> from AutoCount:</p>
+            <h2>Step 3 — Setup in FeedMe Portal</h2>
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <h4>Add Integration</h4>
+                <p>In FeedMe Portal, go to <strong>Integration → Add Integration</strong> and select <strong>AutoCount</strong> from the App dropdown. Enter a name for this integration.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <h4>Configure General Settings</h4>
+                <p>Select your <strong>Location</strong> and preferred <strong>Grouping Method</strong> from the General tab.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <h4>Map Account Codes</h4>
+                <p>Map your AutoCount account codes to FeedMe categories:</p>
                 <ul>
-                  <li>Sales Account Code</li>
-                  <li>Debtor Account Code</li>
-                  <li>Rounding Account Code</li>
-                  <li>Multi-charges (Service Charge, etc.)</li>
-                  <li>Discount Account Code</li>
-                  <li>Payment Method Codes</li>
-                </ul>
-
-                <h4>Phase 2 — Choose Grouping Method</h4>
-                <ul>
-                  <li><strong>Group by Day:</strong> One invoice per day; payments as separate receipts.</li>
-                  <li><strong>Group by Invoice:</strong> Each FeedMe receipt synced as a separate entry.</li>
-                  <li><strong>Group by Day &amp; Category:</strong> Daily invoices with products mapped to category-specific sales codes.</li>
-                </ul>
-
-                <h4>Phase 3 — Setup in FeedMe Portal</h4>
-                <ol>
-                  <li>Navigate to <strong>Integration → Add Integration → AutoCount</strong>.</li>
-                  <li>Map FeedMe payment methods, taxes, and items to AutoCount account codes.</li>
-                  <li>Use the <strong>Preview</strong> page to select a date and verify data.</li>
-                  <li>Click <strong>Download</strong> to get the Excel file.</li>
-                </ol>
-
-                <h4>Phase 4 — Import into AutoCount</h4>
-                <p>Use AutoCount's <strong>"Import from Excel"</strong> menu to upload data for:</p>
-                <ul>
-                  <li>AR Invoice</li>
-                  <li>AR Payment</li>
-                  <li>AR Credit Note</li>
-                  <li>AR Refund</li>
+                  <li><strong>Items:</strong> Sales, Discount, Service Charge account codes</li>
+                  <li><strong>Taxes:</strong> SST_SV, SST_EX, and other tax codes</li>
+                  <li><strong>Payments:</strong> Cash, Credit Card, FoodPanda, GrabFood, DuitNow, etc.</li>
                 </ul>
               </div>
-            </details>
+            </div>
 
-            <hr style="border:none;border-top:2px solid #E5E7EB;margin:28px 0;">
-
-            <h2>📘 SQL Accounting Integration (Excel Import)</h2>
-            <p>Export sales data using a template recognized by the SQL import program.</p>
-
-            <details style="margin:12px 0;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;">
-              <summary style="padding:14px 18px;background:#F9FAFB;cursor:pointer;font-weight:600;">View SQL Setup Guide</summary>
-              <div style="padding:16px 18px;">
-                <h4>Step 1 — Get Codes</h4>
-                <p>Gather codes from SQL for: Sales, Debtor, Rounding, Discounts, and Payment methods.</p>
-
-                <h4>Step 2 — Choose Grouping Strategy</h4>
-                <ul>
-                  <li><strong>Group by Day</strong> — Daily totals</li>
-                  <li><strong>Group by Invoice</strong> — Detailed per-receipt</li>
-                  <li><strong>Group by Day and Category</strong> — Category-level breakdown</li>
-                </ul>
-
-                <h4>Step 3 — FeedMe Portal Settings</h4>
-                <ol>
-                  <li>Enter <strong>General</strong> settings (Location and Grouping method).</li>
-                  <li>Map <strong>Items</strong>, <strong>Taxes</strong>, and <strong>Payments</strong>.</li>
-                  <li>Use the <strong>"+"</strong> icon to add missing payment types if they aren't listed.</li>
-                </ol>
-
-                <h4>Step 4 — Export &amp; Import</h4>
-                <ol>
-                  <li>Download the Excel file from the <strong>Preview</strong> tab.</li>
-                  <li>The <code>Doc No</code> field reflects the FeedMe receipt number (if grouping by invoice).</li>
-                  <li>Use the SQL import program to complete the process.</li>
-                </ol>
+            <h2>Step 4 — Preview &amp; Export</h2>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <h4>Preview Data</h4>
+                <p>Go to the <strong>Preview</strong> tab, select a date range, and verify the data looks correct. The table shows columns for Date, Doc No, Item Account, Tax Code, and amounts.</p>
+                <p><em>Note: When using "Group by Day", the Doc No is displayed by date.</em></p>
               </div>
-            </details>
-
-            <hr style="border:none;border-top:2px solid #E5E7EB;margin:28px 0;">
-
-            <h2>📙 BUKKU Integration (API)</h2>
-            <p>Automate the transfer of sales, payments, and inventory data directly via API.</p>
-
-            <details style="margin:12px 0;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;">
-              <summary style="padding:14px 18px;background:#F9FAFB;cursor:pointer;font-weight:600;">View BUKKU Setup Guide</summary>
-              <div style="padding:16px 18px;">
-                <h4>Step 1 — Account Mapping</h4>
-                <p>Identify codes in BUKKU for: Contact, Sales, Service Charge, Rounding, and Discount Given. Check Tax codes (e.g., SST_SV, SST_EX) under <strong>Company Settings</strong>.</p>
-
-                <h4>Step 2 — API Connection</h4>
-                <ol>
-                  <li>In BUKKU, go to <strong>Control Panel → Integration</strong> and enable <strong>"API Access"</strong>.</li>
-                  <li>Copy the <strong>Token</strong> and <strong>Subdomain</strong>.</li>
-                  <li>Paste them into the FeedMe Portal integration settings.</li>
-                </ol>
-
-                <h4>Step 3 — Grouping Options</h4>
-                <ul>
-                  <li>Standard: Group by Day or Group by Invoice</li>
-                  <li>Advanced: <strong>Group by Day and Separate Payment</strong> — creates a separate receipt for every individual payment.</li>
-                </ul>
-
-                <h4>Step 4 — MyInvois Settings</h4>
-                <ul>
-                  <li><strong>External:</strong> Set this if e-invoices are already submitted via FeedMe's intermediary (avoids double-submission).</li>
-                  <li><strong>Normal/Validate:</strong> Used for consolidated or direct BUKKU-led e-invoice validation.</li>
-                </ul>
-
-                <h4>Step 5 — Upload &amp; Verify</h4>
-                <ol>
-                  <li>Upload via the <strong>Preview</strong> page in FeedMe Portal.</li>
-                  <li>Check the notification bell for <strong>"Upload Status"</strong>.</li>
-                  <li>Verify records in the BUKKU dashboard.</li>
-                </ol>
+            </div>
+            <div class="step">
+              <div class="step-num">5</div>
+              <div class="step-content">
+                <h4>Download Excel File</h4>
+                <p>Click the <strong>Download</strong> button to export the Excel file. The file contains separate sheets for <strong>AR Invoice</strong> and <strong>AR Payment</strong>.</p>
               </div>
-            </details>
+            </div>
 
-            <hr style="border:none;border-top:2px solid #E5E7EB;margin:28px 0;">
-
-            <h2>📕 XERO Integration (API)</h2>
-            <p>Automate daily sales, refunds, and payment reconciliation through a direct Xero connection.</p>
-
-            <details style="margin:12px 0;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;">
-              <summary style="padding:14px 18px;background:#F9FAFB;cursor:pointer;font-weight:600;">View XERO Setup Guide</summary>
-              <div style="padding:16px 18px;">
-                <h4>Step 1 — Connection &amp; Authorization</h4>
-                <ol>
-                  <li>Log in to both <strong>Xero</strong> and <strong>FeedMe</strong>.</li>
-                  <li>Authorize FeedMe to access the specific Xero Organization.</li>
-                  <li>The <strong>"Connect"</strong> button will turn to <strong>"Disconnect"</strong> upon success.</li>
-                </ol>
-
-                <h4>Step 2 — Configuration Toggles</h4>
+            <h2>Step 5 — Import into AutoCount</h2>
+            <div class="step">
+              <div class="step-num">6</div>
+              <div class="step-content">
+                <h4>Import Excel Files</h4>
+                <p>In AutoCount, go to <strong>File → Import and Export → Import from Excel</strong> and import the following:</p>
                 <ul>
-                  <li><strong>Discount as Item:</strong> ON = discounts appear as separate line items; OFF = discounts reduce unit price.</li>
-                  <li><strong>Combine Refund:</strong> ON = 2 invoices per day (Sales + Refunds); OFF = 1 invoice for nett sales.</li>
-                  <li><strong>Grouping:</strong> Day, Invoice, or <strong>Invoice Item</strong> (tracks individual product statuses).</li>
+                  <li><strong>Import A/R Invoice</strong> — Sales invoices</li>
+                  <li><strong>Import A/R Payment</strong> — Payment receipts</li>
+                  <li><strong>Import A/R Credit Note</strong> — Refunds/credits</li>
+                  <li><strong>Import A/R Refund</strong> — Refund entries</li>
                 </ul>
+              </div>
+            </div>
+          `
+        },
+        {
+          id: "sql-integration",
+          title: "SQL Accounting Integration",
+          description: "Export FeedMe sales data and import into SQL Accounting via Excel templates — with mapping and import guide.",
+          tags: ["integration", "accounting", "sql", "excel", "import"],
+          content: `
+            <h2>Overview</h2>
+            <p>Simplify your accounting by exporting sales data from FeedMe POS using Excel templates recognized by the <strong>SQL Accounting</strong> import program.</p>
 
-                <h4>Step 3 — Auto-Sync Settings</h4>
+            <div class="info-box" style="background:#EBF5FF;border-left:4px solid #3B82F6;padding:16px;border-radius:8px;margin:16px 0;">
+              <h4 style="margin-top:0;">📌 Key Info</h4>
+              <ul style="margin-bottom:0;">
+                <li><strong>Integration Type:</strong> Excel Import (manual download &amp; import)</li>
+                <li><strong>Data Capture:</strong> 12:00 AM – 11:59 PM daily.</li>
+                <li><strong>Tax Adjustments:</strong> SST/SV and rounding handled automatically.</li>
+              </ul>
+            </div>
+
+            <h2>Step 1 — Obtain Account Codes</h2>
+            <p>Gather the following codes from your SQL Accounting software:</p>
+            <ul>
+              <li>Sales Account Code</li>
+              <li>Debtor Account Code</li>
+              <li>Rounding Account Code</li>
+              <li>Multi-charges (Service Charge, etc.)</li>
+              <li>Discount Account Code</li>
+              <li>Payment Method Codes (Cash, Credit Card, E-Wallet, etc.)</li>
+            </ul>
+
+            <h2>Step 2 — Choose Grouping Method</h2>
+            <div class="step">
+              <div class="step-num">A</div>
+              <div class="step-content">
+                <h4>Group by Day</h4>
+                <p>One invoice per day with separate receipts for each payment type.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">B</div>
+              <div class="step-content">
+                <h4>Group by Invoice</h4>
+                <p>Every receipt synced as an individual entry for detailed tracking.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">C</div>
+              <div class="step-content">
+                <h4>Group by Day &amp; Category</h4>
+                <p>Daily invoices categorized by product types to different sales codes.</p>
+              </div>
+            </div>
+
+            <h2>Step 3 — Setup in FeedMe Portal</h2>
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <h4>Add Integration</h4>
+                <p>In FeedMe Portal, go to <strong>Integration → Add Integration</strong> and select <strong>SQL</strong> from the App dropdown.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <h4>Create Initial Record</h4>
+                <p>Click <strong>"Update"</strong> once to create the record, which will then reveal the mapping fields.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <h4>Configure General Settings</h4>
+                <p>Enter the integration <strong>Name</strong>, select your <strong>Location</strong>, choose the <strong>Grouping Method</strong>, and enter the <strong>Debtor Code</strong>.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <h4>Map Account Codes</h4>
+                <p>Input the relevant codes for:</p>
                 <ul>
-                  <li>Set a scheduled <strong>Upload Time</strong> (Recommended: <strong>12:30 AM</strong>).</li>
-                  <li>Set a <strong>Delay Day</strong> (Recommended: <strong>1 day</strong>).</li>
+                  <li><strong>Items:</strong> Discount, Sales account codes</li>
+                  <li><strong>Taxes:</strong> SST_SV, SST_EX codes</li>
+                  <li><strong>Payments:</strong> Cash, FeedMe, DuitNow, Credit Card, FoodPanda, GrabFood, etc.</li>
                 </ul>
-
-                <div class="info-box" style="background:#FEF3C7;border-left:4px solid #F59E0B;padding:16px;border-radius:8px;margin:16px 0;">
-                  <h4 style="margin-top:0;">⚠️ Stop &amp; Retry Rule</h4>
-                  <p>The system will <strong>NOT sync</strong> if it detects a "Draft Bill" (open order) for the target date. It will automatically retry on subsequent days until the bill is closed, then sync all pending days at once.</p>
-                  <p style="margin-bottom:0;"><strong>Best Practice:</strong> Ensure all POS orders are closed/settled before the scheduled upload time.</p>
+                <div class="info-box" style="background:#ECFDF5;border-left:4px solid #10B981;padding:12px;border-radius:8px;margin:10px 0;">
+                  <p style="margin:0;">💡 <strong>Tip:</strong> Use the <strong>refresh icon</strong> to repopulate mapping fields. Use the <strong>"+"</strong> icon to manually add payment methods if they are not listed.</p>
                 </div>
               </div>
-            </details>
+            </div>
+
+            <h2>Step 4 — Preview &amp; Export</h2>
+            <div class="step">
+              <div class="step-num">5</div>
+              <div class="step-content">
+                <h4>Preview &amp; Download</h4>
+                <p>Go to the <strong>Preview</strong> page, select your date range, verify the data, and click the <strong>Download</strong> button.</p>
+                <p><em>Note: The <code>Doc No</code> field will reflect the FeedMe receipt number when grouping by invoice (e.g., IV-1303).</em></p>
+              </div>
+            </div>
+
+            <h2>Step 5 — Import into SQL</h2>
+            <div class="step">
+              <div class="step-num">6</div>
+              <div class="step-content">
+                <h4>Import via SQL Program</h4>
+                <p>Use the SQL <strong>"XLS n MDB Import"</strong> program to upload the downloaded Excel files:</p>
+                <ul>
+                  <li>Navigate to <strong>Maintain Customer → Customer Invoice → Customer Payment</strong></li>
+                  <li>Import the AR Invoice and AR Payment data</li>
+                </ul>
+              </div>
+            </div>
+          `
+        },
+        {
+          id: "bukku-integration",
+          title: "BUKKU Accounting Integration (API)",
+          description: "Automate sales data sync from FeedMe to BUKKU via API — with account mapping, MyInvois settings, and upload guide.",
+          tags: ["integration", "accounting", "bukku", "api", "auto-sync"],
+          content: `
+            <h2>Overview</h2>
+            <p>Automate the transfer of sales, payments, and inventory data from FeedMe POS directly to <strong>BUKKU</strong> via API integration. This eliminates manual data entry and minimizes errors.</p>
+
+            <div class="info-box" style="background:#EBF5FF;border-left:4px solid #3B82F6;padding:16px;border-radius:8px;margin:16px 0;">
+              <h4 style="margin-top:0;">📌 Key Info</h4>
+              <ul style="margin-bottom:0;">
+                <li><strong>Integration Type:</strong> API (automatic sync)</li>
+                <li><strong>Data Capture:</strong> 12:00 AM – 11:59 PM daily.</li>
+                <li><strong>Tax Adjustments:</strong> SST/SV and rounding handled automatically.</li>
+              </ul>
+            </div>
+
+            <h2>Step 1 — Obtain BUKKU Account Codes</h2>
+            <p>From your BUKKU Chart of Accounts, gather codes for:</p>
+            <table style="width:100%;border-collapse:collapse;margin:12px 0;">
+              <tr style="background:#F0FDF4;"><th style="text-align:left;padding:10px;border:1px solid #E5E7EB;">Account</th><th style="text-align:left;padding:10px;border:1px solid #E5E7EB;">Purpose</th></tr>
+              <tr><td style="padding:10px;border:1px solid #E5E7EB;">Contact (Customer)</td><td style="padding:10px;border:1px solid #E5E7EB;">Customer/debtor account</td></tr>
+              <tr><td style="padding:10px;border:1px solid #E5E7EB;">Sales</td><td style="padding:10px;border:1px solid #E5E7EB;">Revenue account</td></tr>
+              <tr><td style="padding:10px;border:1px solid #E5E7EB;">Service Charge</td><td style="padding:10px;border:1px solid #E5E7EB;">Service charge account</td></tr>
+              <tr><td style="padding:10px;border:1px solid #E5E7EB;">Rounding</td><td style="padding:10px;border:1px solid #E5E7EB;">Rounding adjustments</td></tr>
+              <tr><td style="padding:10px;border:1px solid #E5E7EB;">Discount Allowed</td><td style="padding:10px;border:1px solid #E5E7EB;">Discount entries</td></tr>
+            </table>
+            <p>Also check <strong>Tax Codes</strong> (e.g., SST_SV, SST_EX) under <strong>Company Settings</strong>.</p>
+
+            <h2>Step 2 — Get BUKKU API Access</h2>
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <h4>Enable API Access</h4>
+                <p>In BUKKU, go to <strong>Control Panel → Integration</strong> and switch on <strong>"API Access"</strong>.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <h4>Copy Credentials</h4>
+                <p>Copy the <strong>Access Token</strong> and <strong>Subdomain</strong> displayed on the integration page.</p>
+              </div>
+            </div>
+
+            <h2>Step 3 — Setup in FeedMe Portal</h2>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <h4>Add BUKKU Integration</h4>
+                <p>In FeedMe Portal, go to <strong>Integration → Add Integration</strong>, select <strong>Bukku</strong>, and paste your <strong>Subdomain</strong> and <strong>Token</strong>.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <h4>Choose Grouping Method</h4>
+                <p>Select your preferred grouping:</p>
+                <ul>
+                  <li><strong>Group by Day</strong> — Daily totals</li>
+                  <li><strong>Group by Invoice</strong> — Per-receipt detail</li>
+                  <li><strong>Group by Day and Item</strong> — Item-level daily breakdown</li>
+                  <li><strong>Group by Day and Separate Payment</strong> — Creates a separate receipt for every individual payment</li>
+                </ul>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">5</div>
+              <div class="step-content">
+                <h4>Configure MyInvois Settings</h4>
+                <p>Set the <strong>MyInvois Action</strong> based on your e-invoice setup:</p>
+                <table style="width:100%;border-collapse:collapse;margin:12px 0;">
+                  <tr style="background:#FFF7ED;"><th style="text-align:left;padding:10px;border:1px solid #E5E7EB;">Setting</th><th style="text-align:left;padding:10px;border:1px solid #E5E7EB;">When to Use</th></tr>
+                  <tr><td style="padding:10px;border:1px solid #E5E7EB;"><strong>External</strong></td><td style="padding:10px;border:1px solid #E5E7EB;">E-invoices are already submitted via FeedMe's intermediary — avoids double-submission in BUKKU.</td></tr>
+                  <tr><td style="padding:10px;border:1px solid #E5E7EB;"><strong>Normal</strong></td><td style="padding:10px;border:1px solid #E5E7EB;">For consolidated invoices submitted through BUKKU.</td></tr>
+                  <tr><td style="padding:10px;border:1px solid #E5E7EB;"><strong>Validate</strong></td><td style="padding:10px;border:1px solid #E5E7EB;">Direct BUKKU-led e-invoice validation.</td></tr>
+                </table>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">6</div>
+              <div class="step-content">
+                <h4>Map Account Codes</h4>
+                <p>Map your BUKKU account codes to FeedMe Items, Taxes, and Payments. Use the <strong>"+"</strong> icon to add missing payment methods (e.g., FoodPanda, Credit).</p>
+              </div>
+            </div>
+
+            <h2>Step 4 — Upload &amp; Verify</h2>
+            <div class="step">
+              <div class="step-num">7</div>
+              <div class="step-content">
+                <h4>Upload Data</h4>
+                <p>Go to the <strong>Preview</strong> page, select the date, and click <strong>Upload</strong> to sync data directly to BUKKU.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">8</div>
+              <div class="step-content">
+                <h4>Check Status</h4>
+                <p>A notification will appear in the top right of FeedMe Portal — check the <strong>notification bell</strong> for <strong>"Upload Status"</strong> to confirm success. Then verify records in the BUKKU dashboard.</p>
+              </div>
+            </div>
+          `
+        },
+        {
+          id: "xero-integration",
+          title: "Xero Accounting Integration (API)",
+          description: "Automate daily sales and refund sync from FeedMe to Xero — with OAuth connection, auto-sync, and Stop & Retry logic.",
+          tags: ["integration", "accounting", "xero", "api", "auto-sync"],
+          content: `
+            <h2>Overview</h2>
+            <p>Automate daily sales, refunds, and payment reconciliation from FeedMe POS to <strong>Xero</strong> through a direct API connection. Includes a specialized <strong>Stop &amp; Retry</strong> rule for data integrity.</p>
+
+            <div class="info-box" style="background:#EBF5FF;border-left:4px solid #3B82F6;padding:16px;border-radius:8px;margin:16px 0;">
+              <h4 style="margin-top:0;">📌 Key Info</h4>
+              <ul style="margin-bottom:0;">
+                <li><strong>Integration Type:</strong> API (automatic sync)</li>
+                <li><strong>Data Capture:</strong> 12:00 AM – 11:59 PM daily.</li>
+                <li><strong>Auto-Sync:</strong> Supports scheduled daily uploads.</li>
+              </ul>
+            </div>
+
+            <h2>Step 1 — Connect &amp; Authorize</h2>
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <h4>Connect to Xero</h4>
+                <p>In FeedMe Portal, go to <strong>Integration → Add Integration → Xero</strong> and click the <strong>"Connect"</strong> button. You'll be redirected to Xero's authorization page.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <h4>Authorize Access</h4>
+                <p>Select your <strong>Xero Organization</strong> and click <strong>"Allow Access"</strong>. Once connected, the button will change from "Connect" to <strong>"Disconnect"</strong>.</p>
+              </div>
+            </div>
+
+            <h2>Step 2 — General Profile</h2>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <h4>Select Location &amp; Contact</h4>
+                <p>Choose your restaurant <strong>Location</strong> and map the <strong>Contact Name</strong> — this must match an existing AR Customer in Xero.</p>
+              </div>
+            </div>
+
+            <h2>Step 3 — Configuration</h2>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <h4>Configure Toggles</h4>
+                <table style="width:100%;border-collapse:collapse;margin:12px 0;">
+                  <tr style="background:#F0FDF4;"><th style="text-align:left;padding:10px;border:1px solid #E5E7EB;">Toggle</th><th style="text-align:left;padding:10px;border:1px solid #E5E7EB;">ON</th><th style="text-align:left;padding:10px;border:1px solid #E5E7EB;">OFF</th></tr>
+                  <tr><td style="padding:10px;border:1px solid #E5E7EB;"><strong>Discount as Item</strong></td><td style="padding:10px;border:1px solid #E5E7EB;">Discounts appear as a separate line item</td><td style="padding:10px;border:1px solid #E5E7EB;">Discounts reduce the unit price of items</td></tr>
+                  <tr><td style="padding:10px;border:1px solid #E5E7EB;"><strong>Combine Refund</strong></td><td style="padding:10px;border:1px solid #E5E7EB;">2 invoices per day (Sales + Refunds)</td><td style="padding:10px;border:1px solid #E5E7EB;">1 invoice for nett sales</td></tr>
+                </table>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">5</div>
+              <div class="step-content">
+                <h4>Choose Grouping Method</h4>
+                <ul>
+                  <li><strong>Group by Day</strong> — Daily totals</li>
+                  <li><strong>Group by Invoice</strong> — Per-receipt detail</li>
+                  <li><strong>Group by Invoice Item</strong> — Tracks individual product statuses</li>
+                </ul>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">6</div>
+              <div class="step-content">
+                <h4>Map Chart of Accounts</h4>
+                <p>Map GL codes for <strong>Items</strong> (Sales, Service Charge), <strong>Payments</strong>, and <strong>Taxes</strong> to your Xero Chart of Accounts.</p>
+              </div>
+            </div>
+
+            <h2>Step 4 — Auto-Sync Setup</h2>
+            <div class="step">
+              <div class="step-num">7</div>
+              <div class="step-content">
+                <h4>Enable Auto Upload</h4>
+                <p>Enable automated daily sync with the recommended settings:</p>
+                <ul>
+                  <li><strong>Upload Time:</strong> 12:30 AM (recommended)</li>
+                  <li><strong>Delay Day:</strong> 1 day (recommended) — syncs yesterday's data</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="info-box" style="background:#FEF3C7;border-left:4px solid #F59E0B;padding:16px;border-radius:8px;margin:16px 0;">
+              <h4 style="margin-top:0;">⚠️ Stop &amp; Retry Rule</h4>
+              <p>The system will <strong>NOT sync</strong> if it detects a <strong>"Draft Bill"</strong> (open/unsettled order) in Xero for the target date. This prevents duplicate or conflicting data.</p>
+              <ul style="margin-bottom:0;">
+                <li>It will automatically <strong>retry</strong> on subsequent days until the bill is closed.</li>
+                <li>Once the bill is settled, it will <strong>sync all pending days at once</strong>.</li>
+                <li><strong>Best Practice:</strong> Ensure all POS orders are closed/settled before the scheduled upload time.</li>
+              </ul>
+            </div>
           `
         }
       ]
