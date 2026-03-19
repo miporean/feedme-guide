@@ -532,126 +532,8 @@ const SITE_DATA = {
       icon: "🔌",
       color: "#10B981",
       bgColor: "#ECFDF5",
-      description: "Payment integration, delivery platforms, e-invoicing, and accounting software setup guides.",
+      description: "E-invoicing and accounting software integration setup guides.",
       articles: [
-        {
-          id: "merchant-payment-integration",
-          title: "Merchant Payment Integration Setup",
-          description: "Enable payment integration for e-wallets, QR code payments, and NFC card terminals via Fiuu.",
-          tags: ["integration", "payment", "fiuu", "e-wallet", "duitnow", "nfc"],
-          content: `
-            <h2>Overview</h2>
-            <p>This guide walks you through setting up merchant payment integration with FeedMe via <strong>Fiuu</strong>. Once enabled, your restaurant can accept payments through e-wallets (GrabPay, Touch 'n Go, Boost, Alipay, ShopeePay, PrestoPay), QR code payments (DuitNow QR), and NFC card terminals (Visa, Mastercard, Apple Pay, Samsung Pay).</p>
-
-            <div class="info-box" style="background:#FFF7ED;border-left:4px solid #F59E0B;padding:16px;border-radius:8px;margin:16px 0;">
-              <h3 style="margin-top:0;">💳 Fiuu Integrated Payment Charge Rates</h3>
-              <h4 style="margin-bottom:8px;">Offline</h4>
-              <table style="width:100%;border-collapse:collapse;margin-bottom:12px;">
-                <tr style="background:#FFF0EB;"><th style="text-align:left;padding:8px;border:1px solid #E5E7EB;">Type</th><th style="padding:8px;border:1px solid #E5E7EB;">Debit Card</th><th style="padding:8px;border:1px solid #E5E7EB;">Credit Card</th></tr>
-                <tr><td style="padding:8px;border:1px solid #E5E7EB;">NFC (CC/DC) – Local</td><td style="padding:8px;border:1px solid #E5E7EB;text-align:center;">0.7%</td><td style="padding:8px;border:1px solid #E5E7EB;text-align:center;">1.2%</td></tr>
-                <tr><td style="padding:8px;border:1px solid #E5E7EB;">NFC (CC/DC) – Foreign</td><td style="padding:8px;border:1px solid #E5E7EB;text-align:center;">2%</td><td style="padding:8px;border:1px solid #E5E7EB;text-align:center;">2%</td></tr>
-                <tr><td style="padding:8px;border:1px solid #E5E7EB;" colspan="3"><strong>E-Wallet:</strong> DuitNow – 1%</td></tr>
-              </table>
-              <p style="margin-bottom:4px;"><strong>Supported:</strong> Visa, Mastercard, Apple Pay, Samsung Pay, Alipay, QRPay, Touch 'n Go, Boost, ShopeePay, GrabPay, PrestoPay</p>
-
-              <h4 style="margin-bottom:8px;">Online</h4>
-              <table style="width:100%;border-collapse:collapse;margin-bottom:12px;">
-                <tr style="background:#FFF0EB;"><th style="text-align:left;padding:8px;border:1px solid #E5E7EB;">Type</th><th style="padding:8px;border:1px solid #E5E7EB;">Debit Card</th><th style="padding:8px;border:1px solid #E5E7EB;">Credit Card</th></tr>
-                <tr><td style="padding:8px;border:1px solid #E5E7EB;">NFC (CC/DC) – Local</td><td style="padding:8px;border:1px solid #E5E7EB;text-align:center;">2%</td><td style="padding:8px;border:1px solid #E5E7EB;text-align:center;">2%</td></tr>
-                <tr><td style="padding:8px;border:1px solid #E5E7EB;">NFC (CC/DC) – Foreign</td><td style="padding:8px;border:1px solid #E5E7EB;text-align:center;">2%</td><td style="padding:8px;border:1px solid #E5E7EB;text-align:center;">2%</td></tr>
-                <tr><td style="padding:8px;border:1px solid #E5E7EB;" colspan="3"><strong>E-Wallet:</strong> DuitNow – 2%</td></tr>
-              </table>
-            </div>
-
-            <h2>Setup Steps</h2>
-            <div class="step">
-              <div class="step-num">1</div>
-              <div class="step-content">
-                <h4>Create Payout Account</h4>
-                <p>Set up your payout account through one of the following:</p>
-                <ul>
-                  <li><strong>Fiuu Payout Account (Online):</strong> <a href="https://scribehow.com/viewer/How_To_Set_Up_A_Payout_Account_For_Restaurant_Malaysia__FRYTRfBWQlGfoXnJ9iqcAQ?referrer=knowledge-page" target="_blank" rel="noopener">Follow the Fiuu Payout Account guide →</a></li>
-                  <li><strong>Fasspay Payout Account (Offline &amp; DuitNow):</strong> <a href="https://scribehow.com/viewer/How_To_Apply_Payment_Integration_For_Restaurant_Malaysia__FassPay__TAD9YidQQ-Wjy1g_LcbfCQ?referrer=knowledge-page" target="_blank" rel="noopener">Follow the Fasspay Payout Account guide →</a></li>
-                </ul>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-num">2</div>
-              <div class="step-content">
-                <h4>Fill in Application Forms</h4>
-                <p>Complete the required merchant application form(s):</p>
-                <ul>
-                  <li><strong>RMS Merchant Application Form:</strong> <a href="https://forms.gle/ir35KHeVWcsGewhL9" target="_blank" rel="noopener">Google Form →</a></li>
-                  <li><strong>Fasspay Application Form:</strong> <a href="https://forms.clickup.com/25608366/f/rdg5e-54696/5XU84QUD9WG292N5XR" target="_blank" rel="noopener">ClickUp Form →</a></li>
-                  <li><strong>Payment Integration Request Form:</strong> <a href="https://feedmepos.sg.larksuite.com/share/base/form/shrlgtsSzKxQoRyXH97V13YY6Af" target="_blank" rel="noopener">Larksuite Form →</a></li>
-                </ul>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-num">3</div>
-              <div class="step-content">
-                <h4>Inform MIPOS Support Team</h4>
-                <p>Once the payout account and application forms are completed, inform the <strong>MIPOS Support Team</strong> to proceed with enabling the payment integration for your restaurant.</p>
-              </div>
-            </div>
-
-            <div class="info-box" style="background:#ECFDF5;border-left:4px solid #10B981;padding:16px;border-radius:8px;margin:16px 0;">
-              <p style="margin:0;"><strong>⏱ Note:</strong> Once all steps are completed, the approval process typically takes <strong>1–2 weeks</strong>.</p>
-            </div>
-          `
-        },
-        {
-          id: "delivery-platform-integration",
-          title: "Delivery Platform Integration Setup",
-          description: "Integrate your FeedMe POS with Foodpanda, GrabFood, and ShopeeFood delivery platforms.",
-          tags: ["integration", "delivery", "foodpanda", "grabfood", "shopeefood", "dpi"],
-          content: `
-            <h2>Overview</h2>
-            <p>This guide covers how to set up delivery platform integration (DPI) with FeedMe. Once integrated, delivery orders from Foodpanda, GrabFood, and ShopeeFood will flow directly into your FeedMe POS.</p>
-
-            <div class="info-box" style="background:#FEF3C7;border-left:4px solid #F59E0B;padding:16px;border-radius:8px;margin:16px 0;">
-              <h4 style="margin-top:0;">⚠️ Important Notes</h4>
-              <ul style="margin-bottom:0;">
-                <li>Any changes to the <strong>delivery menu</strong> must be updated in the <strong>FeedMe Portal/Backend</strong>. It will <strong>not</strong> be editable directly on the delivery platform.</li>
-                <li>The integration process usually takes <strong>1–2 weeks</strong>.</li>
-              </ul>
-            </div>
-
-            <h2>Setup Steps</h2>
-            <div class="step">
-              <div class="step-num">1</div>
-              <div class="step-content">
-                <h4>Request Customer Information</h4>
-                <p>Collect the following details from the customer for each delivery platform:</p>
-                <table style="width:100%;border-collapse:collapse;margin:12px 0;">
-                  <tr style="background:#F0FDF4;"><th style="text-align:left;padding:8px;border:1px solid #E5E7EB;">Platform</th><th style="text-align:left;padding:8px;border:1px solid #E5E7EB;">Required Info</th></tr>
-                  <tr><td style="padding:8px;border:1px solid #E5E7EB;"><strong>Foodpanda</strong></td><td style="padding:8px;border:1px solid #E5E7EB;">Store link, Store name, Restaurant ID</td></tr>
-                  <tr><td style="padding:8px;border:1px solid #E5E7EB;"><strong>GrabFood</strong></td><td style="padding:8px;border:1px solid #E5E7EB;">Store link / Store ID</td></tr>
-                  <tr><td style="padding:8px;border:1px solid #E5E7EB;"><strong>ShopeeFood</strong></td><td style="padding:8px;border:1px solid #E5E7EB;">Store link / Store ID</td></tr>
-                </table>
-                <p><strong>Tutorial:</strong> <a href="https://www.youtube.com/watch?v=Jbff8lJtxwM" target="_blank" rel="noopener">How to get Store ID (YouTube) →</a> <em>(sharable to customers)</em></p>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-num">2</div>
-              <div class="step-content">
-                <h4>Fill in the DPI Form</h4>
-                <p>Complete one of the following forms:</p>
-                <ul>
-                  <li><a href="https://forms.clickup.com/25608366/f/rdg5e-33296/6ACCFCLP9HVOVAL4UN" target="_blank" rel="noopener">ClickUp DPI Form →</a></li>
-                  <li><a href="https://feedmepos.sg.larksuite.com/share/base/form/shrlgxIRd2bE2HQhinopPOZyH7v" target="_blank" rel="noopener">Larksuite DPI Form →</a></li>
-                </ul>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-num">3</div>
-              <div class="step-content">
-                <h4>Inform FeedMe Support</h4>
-                <p>Notify the support team to verify if the documents provided are valid. The team will proceed with the integration once everything is confirmed.</p>
-              </div>
-            </div>
-          `
-        },
         {
           id: "e-invoice-setup",
           title: "E-Invoice Introduction & Setup Guide",
@@ -763,64 +645,181 @@ const SITE_DATA = {
         {
           id: "accounting-software-integration",
           title: "Accounting Software Integration",
-          description: "Integrate FeedMe with accounting software including BUKKU, XERO, BIZTORY, AutoCount, and SQL.",
+          description: "Integrate FeedMe with accounting software including AutoCount, SQL, BUKKU, XERO, and BIZTORY.",
           tags: ["integration", "accounting", "bukku", "xero", "biztory", "autocount", "sql"],
           content: `
             <h2>Overview</h2>
-            <p>FeedMe supports integration with popular accounting software to streamline your financial reporting. Integrations are available via API or import methods.</p>
+            <p>FeedMe integrates with popular accounting software to simplify financial management — reducing manual data entry, improving accuracy, and saving time. Sales data from FeedMe POS flows into your accounting system either via <strong>API (auto-sync)</strong> or <strong>Excel import</strong>.</p>
 
             <h2>Supported Accounting Software</h2>
             <table style="width:100%;border-collapse:collapse;margin:12px 0;">
               <tr style="background:#F0FDF4;"><th style="text-align:left;padding:10px;border:1px solid #E5E7EB;">Integration Type</th><th style="text-align:left;padding:10px;border:1px solid #E5E7EB;">Software</th></tr>
               <tr><td style="padding:10px;border:1px solid #E5E7EB;"><strong>API Integration</strong> (auto-sync)</td><td style="padding:10px;border:1px solid #E5E7EB;">BUKKU, XERO, BIZTORY</td></tr>
-              <tr><td style="padding:10px;border:1px solid #E5E7EB;"><strong>Import Integration</strong> (manual)</td><td style="padding:10px;border:1px solid #E5E7EB;">AutoCount, SQL</td></tr>
+              <tr><td style="padding:10px;border:1px solid #E5E7EB;"><strong>Import Integration</strong> (Excel)</td><td style="padding:10px;border:1px solid #E5E7EB;">AutoCount, SQL</td></tr>
             </table>
 
-            <h2>Key Technical Details</h2>
             <div class="info-box" style="background:#EBF5FF;border-left:4px solid #3B82F6;padding:16px;border-radius:8px;margin:16px 0;">
-              <h4 style="margin-top:0;">📌 FAQ</h4>
+              <h4 style="margin-top:0;">📌 Key Technical Details</h4>
               <ul style="margin-bottom:0;">
-                <li><strong>Data Capture Period:</strong> Integration defaults to capturing data from <strong>12:00 AM to 11:59 PM</strong>. Over-day data is split into two different days based on the bill time.</li>
+                <li><strong>Data Capture Period:</strong> Defaults to <strong>12:00 AM – 11:59 PM</strong>. Over-day data is split into two different days based on the bill time.</li>
                 <li><strong>Tax Adjustments:</strong> Handles SST/SV and rounding adjustments automatically.</li>
+                <li><strong>Grouping Methods:</strong> All integrations support <strong>Group by Day</strong> (daily totals), <strong>Group by Invoice</strong> (per receipt), or <strong>Group by Day &amp; Category</strong> (category-specific sales codes).</li>
               </ul>
             </div>
 
-            <h2>Setup Guides by Software</h2>
-            <div class="step">
-              <div class="step-num">1</div>
-              <div class="step-content">
-                <h4>BUKKU (API Integration)</h4>
-                <p>Auto-syncs sales data from FeedMe to BUKKU accounting software.</p>
+            <hr style="border:none;border-top:2px solid #E5E7EB;margin:28px 0;">
+
+            <h2>📗 AutoCount Integration (Excel Import)</h2>
+            <p>Export sales data from FeedMe and import it into AutoCount via Excel.</p>
+
+            <details style="margin:12px 0;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;">
+              <summary style="padding:14px 18px;background:#F9FAFB;cursor:pointer;font-weight:600;">View AutoCount Setup Guide</summary>
+              <div style="padding:16px 18px;">
+                <h4>Phase 1 — Preparation</h4>
+                <p>Obtain the following <strong>Account Codes</strong> from AutoCount:</p>
+                <ul>
+                  <li>Sales Account Code</li>
+                  <li>Debtor Account Code</li>
+                  <li>Rounding Account Code</li>
+                  <li>Multi-charges (Service Charge, etc.)</li>
+                  <li>Discount Account Code</li>
+                  <li>Payment Method Codes</li>
+                </ul>
+
+                <h4>Phase 2 — Choose Grouping Method</h4>
+                <ul>
+                  <li><strong>Group by Day:</strong> One invoice per day; payments as separate receipts.</li>
+                  <li><strong>Group by Invoice:</strong> Each FeedMe receipt synced as a separate entry.</li>
+                  <li><strong>Group by Day &amp; Category:</strong> Daily invoices with products mapped to category-specific sales codes.</li>
+                </ul>
+
+                <h4>Phase 3 — Setup in FeedMe Portal</h4>
+                <ol>
+                  <li>Navigate to <strong>Integration → Add Integration → AutoCount</strong>.</li>
+                  <li>Map FeedMe payment methods, taxes, and items to AutoCount account codes.</li>
+                  <li>Use the <strong>Preview</strong> page to select a date and verify data.</li>
+                  <li>Click <strong>Download</strong> to get the Excel file.</li>
+                </ol>
+
+                <h4>Phase 4 — Import into AutoCount</h4>
+                <p>Use AutoCount's <strong>"Import from Excel"</strong> menu to upload data for:</p>
+                <ul>
+                  <li>AR Invoice</li>
+                  <li>AR Payment</li>
+                  <li>AR Credit Note</li>
+                  <li>AR Refund</li>
+                </ul>
               </div>
-            </div>
-            <div class="step">
-              <div class="step-num">2</div>
-              <div class="step-content">
-                <h4>XERO (API Integration)</h4>
-                <p>Auto-syncs sales data from FeedMe to XERO cloud accounting.</p>
+            </details>
+
+            <hr style="border:none;border-top:2px solid #E5E7EB;margin:28px 0;">
+
+            <h2>📘 SQL Accounting Integration (Excel Import)</h2>
+            <p>Export sales data using a template recognized by the SQL import program.</p>
+
+            <details style="margin:12px 0;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;">
+              <summary style="padding:14px 18px;background:#F9FAFB;cursor:pointer;font-weight:600;">View SQL Setup Guide</summary>
+              <div style="padding:16px 18px;">
+                <h4>Step 1 — Get Codes</h4>
+                <p>Gather codes from SQL for: Sales, Debtor, Rounding, Discounts, and Payment methods.</p>
+
+                <h4>Step 2 — Choose Grouping Strategy</h4>
+                <ul>
+                  <li><strong>Group by Day</strong> — Daily totals</li>
+                  <li><strong>Group by Invoice</strong> — Detailed per-receipt</li>
+                  <li><strong>Group by Day and Category</strong> — Category-level breakdown</li>
+                </ul>
+
+                <h4>Step 3 — FeedMe Portal Settings</h4>
+                <ol>
+                  <li>Enter <strong>General</strong> settings (Location and Grouping method).</li>
+                  <li>Map <strong>Items</strong>, <strong>Taxes</strong>, and <strong>Payments</strong>.</li>
+                  <li>Use the <strong>"+"</strong> icon to add missing payment types if they aren't listed.</li>
+                </ol>
+
+                <h4>Step 4 — Export &amp; Import</h4>
+                <ol>
+                  <li>Download the Excel file from the <strong>Preview</strong> tab.</li>
+                  <li>The <code>Doc No</code> field reflects the FeedMe receipt number (if grouping by invoice).</li>
+                  <li>Use the SQL import program to complete the process.</li>
+                </ol>
               </div>
-            </div>
-            <div class="step">
-              <div class="step-num">3</div>
-              <div class="step-content">
-                <h4>BIZTORY (API Integration)</h4>
-                <p>Auto-syncs sales data from FeedMe to BIZTORY accounting platform.</p>
+            </details>
+
+            <hr style="border:none;border-top:2px solid #E5E7EB;margin:28px 0;">
+
+            <h2>📙 BUKKU Integration (API)</h2>
+            <p>Automate the transfer of sales, payments, and inventory data directly via API.</p>
+
+            <details style="margin:12px 0;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;">
+              <summary style="padding:14px 18px;background:#F9FAFB;cursor:pointer;font-weight:600;">View BUKKU Setup Guide</summary>
+              <div style="padding:16px 18px;">
+                <h4>Step 1 — Account Mapping</h4>
+                <p>Identify codes in BUKKU for: Contact, Sales, Service Charge, Rounding, and Discount Given. Check Tax codes (e.g., SST_SV, SST_EX) under <strong>Company Settings</strong>.</p>
+
+                <h4>Step 2 — API Connection</h4>
+                <ol>
+                  <li>In BUKKU, go to <strong>Control Panel → Integration</strong> and enable <strong>"API Access"</strong>.</li>
+                  <li>Copy the <strong>Token</strong> and <strong>Subdomain</strong>.</li>
+                  <li>Paste them into the FeedMe Portal integration settings.</li>
+                </ol>
+
+                <h4>Step 3 — Grouping Options</h4>
+                <ul>
+                  <li>Standard: Group by Day or Group by Invoice</li>
+                  <li>Advanced: <strong>Group by Day and Separate Payment</strong> — creates a separate receipt for every individual payment.</li>
+                </ul>
+
+                <h4>Step 4 — MyInvois Settings</h4>
+                <ul>
+                  <li><strong>External:</strong> Set this if e-invoices are already submitted via FeedMe's intermediary (avoids double-submission).</li>
+                  <li><strong>Normal/Validate:</strong> Used for consolidated or direct BUKKU-led e-invoice validation.</li>
+                </ul>
+
+                <h4>Step 5 — Upload &amp; Verify</h4>
+                <ol>
+                  <li>Upload via the <strong>Preview</strong> page in FeedMe Portal.</li>
+                  <li>Check the notification bell for <strong>"Upload Status"</strong>.</li>
+                  <li>Verify records in the BUKKU dashboard.</li>
+                </ol>
               </div>
-            </div>
-            <div class="step">
-              <div class="step-num">4</div>
-              <div class="step-content">
-                <h4>AutoCount (Import Integration)</h4>
-                <p>Export sales data from FeedMe and import into AutoCount accounting software manually.</p>
+            </details>
+
+            <hr style="border:none;border-top:2px solid #E5E7EB;margin:28px 0;">
+
+            <h2>📕 XERO Integration (API)</h2>
+            <p>Automate daily sales, refunds, and payment reconciliation through a direct Xero connection.</p>
+
+            <details style="margin:12px 0;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;">
+              <summary style="padding:14px 18px;background:#F9FAFB;cursor:pointer;font-weight:600;">View XERO Setup Guide</summary>
+              <div style="padding:16px 18px;">
+                <h4>Step 1 — Connection &amp; Authorization</h4>
+                <ol>
+                  <li>Log in to both <strong>Xero</strong> and <strong>FeedMe</strong>.</li>
+                  <li>Authorize FeedMe to access the specific Xero Organization.</li>
+                  <li>The <strong>"Connect"</strong> button will turn to <strong>"Disconnect"</strong> upon success.</li>
+                </ol>
+
+                <h4>Step 2 — Configuration Toggles</h4>
+                <ul>
+                  <li><strong>Discount as Item:</strong> ON = discounts appear as separate line items; OFF = discounts reduce unit price.</li>
+                  <li><strong>Combine Refund:</strong> ON = 2 invoices per day (Sales + Refunds); OFF = 1 invoice for nett sales.</li>
+                  <li><strong>Grouping:</strong> Day, Invoice, or <strong>Invoice Item</strong> (tracks individual product statuses).</li>
+                </ul>
+
+                <h4>Step 3 — Auto-Sync Settings</h4>
+                <ul>
+                  <li>Set a scheduled <strong>Upload Time</strong> (Recommended: <strong>12:30 AM</strong>).</li>
+                  <li>Set a <strong>Delay Day</strong> (Recommended: <strong>1 day</strong>).</li>
+                </ul>
+
+                <div class="info-box" style="background:#FEF3C7;border-left:4px solid #F59E0B;padding:16px;border-radius:8px;margin:16px 0;">
+                  <h4 style="margin-top:0;">⚠️ Stop &amp; Retry Rule</h4>
+                  <p>The system will <strong>NOT sync</strong> if it detects a "Draft Bill" (open order) for the target date. It will automatically retry on subsequent days until the bill is closed, then sync all pending days at once.</p>
+                  <p style="margin-bottom:0;"><strong>Best Practice:</strong> Ensure all POS orders are closed/settled before the scheduled upload time.</p>
+                </div>
               </div>
-            </div>
-            <div class="step">
-              <div class="step-num">5</div>
-              <div class="step-content">
-                <h4>SQL Accounting (Import Integration)</h4>
-                <p>Export sales data from FeedMe and import into SQL Accounting software manually.</p>
-              </div>
-            </div>
+            </details>
           `
         }
       ]

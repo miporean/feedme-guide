@@ -138,7 +138,7 @@
         icon: '🔌',
         color: '#10B981',
         bgColor: '#ECFDF5',
-        description: 'Payment integration, delivery platforms, e-invoicing, and accounting software.',
+        description: 'E-invoicing and accounting software integration setup guides.',
         count: integrationArticleCount
       },
       {
