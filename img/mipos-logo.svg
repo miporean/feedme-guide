@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="32" fill="#FF6B00"/>
+  <!-- mipos text -->
+  <text x="100" y="115" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="52" fill="white" letter-spacing="-1">mipos</text>
+  <!-- sparkle diamond -->
+  <polygon points="138,52 141,62 151,65 141,68 138,78 135,68 125,65 135,62" fill="white"/>
+  <!-- Shop Tech text -->
+  <text x="100" y="155" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="36" fill="white">Shop Tech</text>
+</svg>

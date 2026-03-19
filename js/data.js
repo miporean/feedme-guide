@@ -702,6 +702,7 @@ const SITE_DATA = {
               <div class="step-content">
                 <h4>Add Integration</h4>
                 <p>In FeedMe Portal, go to <strong>Integration → Add Integration</strong> and select <strong>AutoCount</strong> from the App dropdown. Enter a name for this integration.</p>
+                <img src="img/autocount_add_integration.png" alt="Add AutoCount Integration" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
             <div class="step">
@@ -709,6 +710,7 @@ const SITE_DATA = {
               <div class="step-content">
                 <h4>Configure General Settings</h4>
                 <p>Select your <strong>Location</strong> and preferred <strong>Grouping Method</strong> from the General tab.</p>
+                <img src="img/autocount_general_settings.png" alt="AutoCount General Settings" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
             <div class="step">
@@ -721,6 +723,7 @@ const SITE_DATA = {
                   <li><strong>Taxes:</strong> SST_SV, SST_EX, and other tax codes</li>
                   <li><strong>Payments:</strong> Cash, Credit Card, FoodPanda, GrabFood, DuitNow, etc.</li>
                 </ul>
+                <img src="img/autocount_mapping.png" alt="AutoCount Mapping" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
 
@@ -731,6 +734,7 @@ const SITE_DATA = {
                 <h4>Preview Data</h4>
                 <p>Go to the <strong>Preview</strong> tab, select a date range, and verify the data looks correct. The table shows columns for Date, Doc No, Item Account, Tax Code, and amounts.</p>
                 <p><em>Note: When using "Group by Day", the Doc No is displayed by date.</em></p>
+                <img src="img/autocount_preview.png" alt="AutoCount Preview" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
             <div class="step">
@@ -738,6 +742,7 @@ const SITE_DATA = {
               <div class="step-content">
                 <h4>Download Excel File</h4>
                 <p>Click the <strong>Download</strong> button to export the Excel file. The file contains separate sheets for <strong>AR Invoice</strong> and <strong>AR Payment</strong>.</p>
+                <img src="img/autocount_import_excel.png" alt="AutoCount Excel File" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
 
@@ -753,6 +758,7 @@ const SITE_DATA = {
                   <li><strong>Import A/R Credit Note</strong> — Refunds/credits</li>
                   <li><strong>Import A/R Refund</strong> — Refund entries</li>
                 </ul>
+                <img src="img/autocount_import_menu.png" alt="AutoCount Import Menu" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
           `
@@ -815,6 +821,7 @@ const SITE_DATA = {
               <div class="step-content">
                 <h4>Add Integration</h4>
                 <p>In FeedMe Portal, go to <strong>Integration → Add Integration</strong> and select <strong>SQL</strong> from the App dropdown.</p>
+                <img src="img/sql_add_integration.png" alt="Add SQL Integration" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
             <div class="step">
@@ -844,6 +851,7 @@ const SITE_DATA = {
                 <div class="info-box" style="background:#ECFDF5;border-left:4px solid #10B981;padding:12px;border-radius:8px;margin:10px 0;">
                   <p style="margin:0;">💡 <strong>Tip:</strong> Use the <strong>refresh icon</strong> to repopulate mapping fields. Use the <strong>"+"</strong> icon to manually add payment methods if they are not listed.</p>
                 </div>
+                <img src="img/sql_general_settings.png" alt="SQL General Settings and Mapping" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
 
@@ -854,6 +862,7 @@ const SITE_DATA = {
                 <h4>Preview &amp; Download</h4>
                 <p>Go to the <strong>Preview</strong> page, select your date range, verify the data, and click the <strong>Download</strong> button.</p>
                 <p><em>Note: The <code>Doc No</code> field will reflect the FeedMe receipt number when grouping by invoice (e.g., IV-1303).</em></p>
+                <img src="img/sql_preview.png" alt="SQL Preview Data" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
 
@@ -867,6 +876,7 @@ const SITE_DATA = {
                   <li>Navigate to <strong>Maintain Customer → Customer Invoice → Customer Payment</strong></li>
                   <li>Import the AR Invoice and AR Payment data</li>
                 </ul>
+                <img src="img/sql_import.png" alt="SQL Import Interface" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
           `
@@ -907,6 +917,7 @@ const SITE_DATA = {
               <div class="step-content">
                 <h4>Enable API Access</h4>
                 <p>In BUKKU, go to <strong>Control Panel → Integration</strong> and switch on <strong>"API Access"</strong>.</p>
+                <img src="img/bukku_api_access.png" alt="BUKKU API Access" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
             <div class="step">
@@ -949,6 +960,7 @@ const SITE_DATA = {
                   <tr><td style="padding:10px;border:1px solid #E5E7EB;"><strong>Normal</strong></td><td style="padding:10px;border:1px solid #E5E7EB;">For consolidated invoices submitted through BUKKU.</td></tr>
                   <tr><td style="padding:10px;border:1px solid #E5E7EB;"><strong>Validate</strong></td><td style="padding:10px;border:1px solid #E5E7EB;">Direct BUKKU-led e-invoice validation.</td></tr>
                 </table>
+                <img src="img/bukku_myinvois.png" alt="BUKKU MyInvois Settings" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
             <div class="step">
@@ -956,6 +968,7 @@ const SITE_DATA = {
               <div class="step-content">
                 <h4>Map Account Codes</h4>
                 <p>Map your BUKKU account codes to FeedMe Items, Taxes, and Payments. Use the <strong>"+"</strong> icon to add missing payment methods (e.g., FoodPanda, Credit).</p>
+                <img src="img/bukku_mapping.png" alt="BUKKU Mapping" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
 
@@ -965,6 +978,7 @@ const SITE_DATA = {
               <div class="step-content">
                 <h4>Upload Data</h4>
                 <p>Go to the <strong>Preview</strong> page, select the date, and click <strong>Upload</strong> to sync data directly to BUKKU.</p>
+                <img src="img/bukku_upload.png" alt="BUKKU Upload" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
             <div class="step">
@@ -1007,6 +1021,7 @@ const SITE_DATA = {
               <div class="step-content">
                 <h4>Authorize Access</h4>
                 <p>Select your <strong>Xero Organization</strong> and click <strong>"Allow Access"</strong>. Once connected, the button will change from "Connect" to <strong>"Disconnect"</strong>.</p>
+                <img src="img/xero_connect.png" alt="Xero Connect" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
 
@@ -1029,6 +1044,7 @@ const SITE_DATA = {
                   <tr><td style="padding:10px;border:1px solid #E5E7EB;"><strong>Discount as Item</strong></td><td style="padding:10px;border:1px solid #E5E7EB;">Discounts appear as a separate line item</td><td style="padding:10px;border:1px solid #E5E7EB;">Discounts reduce the unit price of items</td></tr>
                   <tr><td style="padding:10px;border:1px solid #E5E7EB;"><strong>Combine Refund</strong></td><td style="padding:10px;border:1px solid #E5E7EB;">2 invoices per day (Sales + Refunds)</td><td style="padding:10px;border:1px solid #E5E7EB;">1 invoice for nett sales</td></tr>
                 </table>
+                <img src="img/xero_toggles.png" alt="Xero Toggle Settings" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
             <div class="step">
@@ -1060,6 +1076,7 @@ const SITE_DATA = {
                   <li><strong>Upload Time:</strong> 12:30 AM (recommended)</li>
                   <li><strong>Delay Day:</strong> 1 day (recommended) — syncs yesterday's data</li>
                 </ul>
+                <img src="img/xero_auto_upload.png" alt="Xero Auto Upload Settings" style="width:100%;border-radius:8px;border:1px solid #E5E7EB;margin:12px 0;">
               </div>
             </div>
 
