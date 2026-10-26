@@ -1,4 +1,4 @@
-// MIPOS X FeedMe Guideline — Main Application Logic
+// FeedMe Wiki (created by MIPOS) — Main Application Logic
 (function () {
   'use strict';
 

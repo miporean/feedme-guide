@@ -1,6 +1,6 @@
-// FeedMe Guideline - Content Data
+// FeedMe Wiki - Content Data
 const SITE_DATA = {
-  siteName: "MIPOS X FeedMe Guideline",
+  siteName: "FeedMe Wiki",
   siteTagline: "Setup guides, tutorials, and troubleshooting for FeedMe Portal & POS",
   portalUrl: "https://portal.feedme.com",
 
