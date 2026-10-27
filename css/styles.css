@@ -79,7 +79,7 @@ img {
   justify-content: space-between;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 200;
   backdrop-filter: blur(12px);
   background: rgba(255, 255, 255, 0.95);
 }
@@ -1453,42 +1453,23 @@ img {
   color: #DC2626;
 }
 
-.wk-admin-bar {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 900;
+.wk-nav-staff {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 8px 8px 16px;
-  background: var(--dark);
-  color: #fff;
-  border-radius: 999px;
-  box-shadow: var(--shadow-lg);
-  font-size: 13px;
+  gap: 4px;
+  margin-right: 8px;
+  padding-right: 12px;
+  border-right: 1px solid var(--border);
 }
 
-.wk-admin-who {
+.wk-nav-new {
+  padding: 7px 14px;
+  font-size: 14px;
+}
+
+.nav a.wk-nav-staff-link {
+  color: var(--primary);
   font-weight: 600;
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.wk-admin-bar .wk-btn {
-  border-radius: 999px;
-}
-
-.wk-admin-link {
-  color: #ccc;
-  font-size: 13px;
-  padding-right: 8px;
-}
-
-.wk-admin-link:hover {
-  color: #fff;
 }
 
 .wk-add-card {
@@ -1541,9 +1522,12 @@ img {
 }
 
 @media (max-width: 768px) {
-  .wk-admin-bar {
-    left: 16px;
-    justify-content: space-between;
+  .wk-nav-staff {
+    flex-wrap: wrap;
+    margin: 0 0 8px;
+    padding: 0 0 12px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
   }
 
   .wk-imgs a {

@@ -131,7 +131,7 @@
     const link = document.createElement('link');
     link.id = 'wkeCss';
     link.rel = 'stylesheet';
-    link.href = 'css/editor.css?v=3';
+    link.href = 'css/editor.css?v=4';
     document.head.appendChild(link);
   }
 

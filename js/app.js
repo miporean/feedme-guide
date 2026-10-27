@@ -843,29 +843,27 @@
   // Shown only in browsers that went through /admin (Cloudflare Access login);
   // every save is checked again on the server.
   function renderAdminBar() {
-    let bar = document.getElementById('wkAdminBar');
+    // Staff tools sit at the start of the top menu, before Home.
+    let bar = document.getElementById('wkNavStaff');
     if (!isStaffBrowser()) { if (bar) bar.remove(); return; }
     if (!bar) {
-      bar = document.createElement('div');
-      bar.id = 'wkAdminBar';
-      bar.className = 'wk-admin-bar';
-      document.body.appendChild(bar);
+      bar = document.createElement('span');
+      bar.id = 'wkNavStaff';
+      bar.className = 'wk-nav-staff';
+      nav.prepend(bar);
     }
     if (admin) {
       bar.innerHTML = `
-        <span class="wk-admin-who" title="${WikiRender.esc(admin.email)}">MIPOS · ${WikiRender.esc(admin.email.split('@')[0])}</span>
-        <button type="button" class="wk-btn wk-btn-primary" id="wkNewPage">+ New page</button>
-        <a class="wk-admin-link" href="/admin/">Staff page</a>
-        <a class="wk-admin-link" href="/cdn-cgi/access/logout" id="wkLogout">Log out</a>`;
+        <button type="button" class="wk-btn wk-btn-primary wk-nav-new" id="wkNewPage">+ New page</button>
+        <a class="wk-nav-staff-link" href="/admin/" title="Signed in as ${WikiRender.esc(admin.email)}">Staff page</a>`;
       bar.querySelector('#wkNewPage').addEventListener('click', () => {
+        nav.classList.remove('open');
+        mobileMenuBtn.textContent = '☰';
         const cat = getParams().category;
         openEditor(null, findCategory(cat) ? cat : (cat === 'pos' ? 'pos-setup' : null));
       });
-      bar.querySelector('#wkLogout').addEventListener('click', () => {
-        try { localStorage.removeItem('wikiStaff'); } catch (e) {}
-      });
     } else {
-      bar.innerHTML = `<a class="wk-admin-link" href="/admin/">MIPOS staff: log in to edit</a>`;
+      bar.innerHTML = `<a class="wk-nav-staff-link" href="/admin/">Staff login</a>`;
     }
   }
 
@@ -875,7 +873,7 @@
     if (!editorLoading) {
       editorLoading = new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = 'js/editor.js?v=3';
+        s.src = 'js/editor.js?v=4';
         s.onload = resolve;
         s.onerror = () => { editorLoading = null; reject(new Error('Could not load the editor')); };
         document.head.appendChild(s);
