@@ -1401,6 +1401,10 @@ img {
   max-width: 380px;
 }
 
+.wk-imgs-big:not(.wk-imgs-1) a {
+  max-width: calc(50% - 4px);
+}
+
 .wk-imgs-big img {
   border-radius: 12px;
   box-shadow: var(--shadow-sm);
@@ -1545,4 +1549,49 @@ img {
   .wk-imgs a {
     flex-basis: 100%;
   }
+}
+
+/* Text formatting from the page format (tables, red alert box) */
+.callout > :last-child {
+  margin-bottom: 0;
+}
+
+.wk-callout-danger {
+  background: #FEF2F2;
+  border-left: 4px solid #EF4444;
+  color: #991B1B;
+}
+
+.wk-table-wrap {
+  overflow-x: auto;
+  margin: 12px 0 16px;
+}
+
+.wk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.wk-table th,
+.wk-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 10px;
+  border: 1px solid #E5E7EB;
+}
+
+.wk-table th {
+  background: var(--bg-subtle);
+  font-weight: 600;
+}
+
+.wk-edited-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #EEF2FF;
+  color: #3730A3;
+  font-size: 12px;
+  font-weight: 600;
 }

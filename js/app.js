@@ -135,7 +135,7 @@
                 </div>
                 <span class="ts-card-arrow">${icons.arrow}</span>
               </div>
-              <h3 class="ts-card-title">${article.title}${article.draft ? ' <span class="wk-draft-badge">Draft</span>' : ''}</h3>
+              <h3 class="ts-card-title">${article.title}${article.draft ? ' <span class="wk-draft-badge">Hidden</span>' : ''}</h3>
               <p class="ts-card-desc">${article.description}</p>
               ${tags.length ? `
                 <div class="ts-card-tags">
@@ -461,16 +461,13 @@
 
   // ===== RENDER ARTICLE PAGE =====
   function renderArticle(articleId) {
-    const result = findArticle(articleId);
-    if (!result) {
-      // Pages made in the editor arrive a moment after the first render.
-      if (!customLoaded) {
-        app.innerHTML = '<div class="page-loading"><div class="scribe-loading-spinner"></div></div>';
-        return;
-      }
-      renderHome();
+    // Wait for edited / new pages so customers never see an outdated version.
+    if (!customLoaded) {
+      app.innerHTML = '<div class="page-loading"><div class="scribe-loading-spinner"></div></div>';
       return;
     }
+    const result = findArticle(articleId);
+    if (!result) { renderHome(); return; }
 
     const { article, category } = result;
     updateNav(navSection(category.id));
@@ -526,11 +523,14 @@
           ${article.title}
         </div>
 
-        ${admin && article.custom ? `
+        ${admin ? `
           <div class="wk-admin-actions">
-            ${article.draft ? '<span class="wk-draft-badge">Draft — customers cannot see this page</span>' : ''}
+            ${article.draft ? '<span class="wk-draft-badge">Hidden — customers cannot see this page</span>' : ''}
+            ${article.edited ? `<span class="wk-edited-badge" title="${WikiRender.esc(article.page.updatedBy || '')}">Edited${article.page.updatedAt ? ' ' + new Date(article.page.updatedAt).toLocaleDateString() : ''}</span>` : ''}
             <button type="button" class="wk-btn" data-edit-page="${article.id}">✏️ Edit page</button>
-            <button type="button" class="wk-btn wk-btn-danger" data-delete-page="${article.id}">🗑 Delete</button>
+            ${article.builtin
+              ? (article.edited ? `<button type="button" class="wk-btn wk-btn-danger" data-restore-page="${article.id}">↺ Restore original</button>` : '')
+              : `<button type="button" class="wk-btn wk-btn-danger" data-delete-page="${article.id}">🗑 Delete</button>`}
           </div>` : ''}
 
         <h1>${article.title}</h1>
@@ -545,7 +545,7 @@
         ${embedSection}
 
         <div class="article-content" id="stepsView" style="${article.scribeEmbed ? 'display:none' : ''}">
-          ${article.custom ? WikiRender.render(article.page) : article.content}
+          ${WikiRender.render(article.page)}
         </div>
 
         <a class="back-link" data-category="${category.id}">
@@ -676,11 +676,14 @@
     document.querySelectorAll('[data-edit-page]').forEach(el => {
       el.addEventListener('click', () => {
         const found = findArticle(el.getAttribute('data-edit-page'));
-        if (found) openEditor(found.article.page);
+        if (found) openEditor(Object.assign({}, found.article.page, { category: found.category.id }));
       });
     });
     document.querySelectorAll('[data-delete-page]').forEach(el => {
-      el.addEventListener('click', () => deletePage(el.getAttribute('data-delete-page')));
+      el.addEventListener('click', () => deletePage(el.getAttribute('data-delete-page'), false));
+    });
+    document.querySelectorAll('[data-restore-page]').forEach(el => {
+      el.addEventListener('click', () => deletePage(el.getAttribute('data-restore-page'), true));
     });
 
     // Home page clicks
@@ -759,8 +762,8 @@
   }
 
   // Article fields are inserted as HTML by the templates above, so escape
-  // anything typed into the editor before it joins SITE_DATA.
-  function toArticle(page) {
+  // page text before it joins SITE_DATA.
+  function toArticle(page, opts) {
     const esc = WikiRender.esc;
     return {
       id: page.id,
@@ -768,31 +771,53 @@
       description: esc(page.description || ''),
       tags: (page.tags || []).map(esc),
       articleIcon: page.icon ? esc(page.icon) : '',
-      articleColor: page.color,
-      scribeEmbed: '',
-      custom: true,
-      draft: !page.published,
+      articleColor: /^#[0-9a-f]{6}$/i.test(page.color || '') ? page.color : '',
+      scribeEmbed: /^https:\/\/scribehow\.com\/embed\//.test(page.scribeEmbed || '') ? page.scribeEmbed : '',
+      steps: page.steps,
+      duration: page.duration ? esc(page.duration) : '',
+      builtin: !!opts.builtin,
+      edited: !!opts.edited,
+      draft: page.published === false,
       page
     };
   }
 
-  function mergePages(pages) {
-    SITE_DATA.categories.forEach(cat => { cat.articles = cat.articles.filter(a => !a.custom); });
+  // Built-in pages from data.js, kept so edits can be undone ("Restore original").
+  const BUILTIN = SITE_DATA.categories.map(cat => ({
+    catId: cat.id,
+    pages: cat.articles.map(p => Object.assign({}, p, { category: cat.id, published: true }))
+  }));
+  const BUILTIN_IDS = new Set(BUILTIN.flatMap(c => c.pages.map(p => p.id)));
+
+  // Rebuild every category: built-in pages, replaced by their edited copy if
+  // there is one, then pages created in the editor.
+  function mergePages(pages, hidden) {
+    const byId = new Map(pages.map(p => [p.id, p]));
+    const hiddenIds = new Set(hidden || []);
+    SITE_DATA.categories.forEach(cat => { cat.articles = []; });
+    BUILTIN.forEach(({ pages: list }) => list.forEach(orig => {
+      if (hiddenIds.has(orig.id)) return;
+      const edited = byId.get(orig.id);
+      const page = edited || orig;
+      const cat = findCategory(page.category) || findCategory(orig.category);
+      if (cat) cat.articles.push(toArticle(page, { builtin: true, edited: !!edited }));
+    }));
     pages.forEach(page => {
+      if (BUILTIN_IDS.has(page.id)) return;
       const cat = findCategory(page.category);
-      if (cat) cat.articles.push(toArticle(page));
+      if (cat) cat.articles.push(toArticle(page, { builtin: false }));
     });
   }
 
   async function loadCustomPages() {
-    let pages = [];
+    let data = {};
     if (isStaffBrowser()) {
       try { admin = await getJson('/admin/api/me'); } catch (e) { admin = null; }
     }
     try {
-      pages = (await getJson(admin ? '/admin/api/pages' : '/api/pages')).pages || [];
-    } catch (e) { /* editor storage not set up yet — static pages still work */ }
-    mergePages(pages);
+      data = await getJson(admin ? '/admin/api/pages' : '/api/pages');
+    } catch (e) { /* editor storage not set up yet — built-in pages still work */ }
+    mergePages(data.pages || [], data.hidden);
     customLoaded = true;
     renderAdminBar();
     render();
@@ -838,7 +863,7 @@
     if (!editorLoading) {
       editorLoading = new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = 'js/editor.js?v=1';
+        s.src = 'js/editor.js?v=2';
         s.onload = resolve;
         s.onerror = () => { editorLoading = null; reject(new Error('Could not load the editor')); };
         document.head.appendChild(s);
@@ -851,9 +876,9 @@
     if (!admin) return;
     try { await loadEditor(); } catch (e) { alert(e.message); return; }
     window.WikiEditor.open({
-      page,
+      page: page ? Object.assign({}, page, { builtin: BUILTIN_IDS.has(page.id) }) : null,
       categoryId,
-      categories: SITE_DATA.categories.map(c => ({ id: c.id, name: c.name, section: c.section })),
+      categories: SITE_DATA.categories.map(c => ({ id: c.id, name: c.name, section: c.section, color: c.color })),
       onSaved: async saved => {
         await reloadCustomPages();
         navigate({ article: saved.id });
@@ -861,20 +886,27 @@
     });
   }
 
-  async function deletePage(id) {
+  // Deletes a staff-made page, or (restore = true) drops the edited copy of a built-in page.
+  async function deletePage(id, restore) {
     const found = findArticle(id);
-    if (!found || !confirm(`Delete "${found.article.page.title}"?\n\nThis cannot be undone.`)) return;
+    if (!found) return;
+    const question = restore
+      ? `Restore "${found.article.page.title}" to the original version?\n\nAll changes made in the editor will be lost.`
+      : `Delete "${found.article.page.title}"?\n\nThis cannot be undone.`;
+    if (!confirm(question)) return;
     try {
       const res = await fetch('/admin/api/pages/' + encodeURIComponent(id), { method: 'DELETE', credentials: 'same-origin' });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Delete failed');
       await reloadCustomPages();
-      navigate({ category: found.category.id });
+      if (restore) navigate({ article: id });
+      else navigate({ category: found.category.id });
     } catch (e) {
       alert(e.message);
     }
   }
 
-  // Initial render (static pages), then again once editor pages have loaded.
+  // Initial render (built-in pages), then again once edited / new pages have loaded.
+  mergePages([]);
   render();
   loadCustomPages();
 

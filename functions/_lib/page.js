@@ -22,6 +22,12 @@ function lines(v, maxItems, maxLen) {
   return list(v, maxItems, x => str(x, maxLen) || null);
 }
 
+// Scribe "interactive guide" embeds only.
+function scribe(v) {
+  const s = str(v, 300);
+  return /^https:\/\/scribehow\.com\/embed\/[\w-]+(\?[\w=&-]*)?$/.test(s) ? s : '';
+}
+
 // Uploaded images, existing site images, or external https links only.
 function image(v) {
   const s = str(v, 500);
@@ -37,7 +43,8 @@ export function normalizePage(input) {
   if (!CATEGORIES.includes(category)) throw new HttpError(400, 'Please choose a valid category');
   const title = str(input.title, 200);
   if (!title) throw new HttpError(400, 'Title is required');
-  const color = /^#[0-9a-f]{6}$/i.test(input.color) ? input.color : '#F59E0B';
+  // Empty colour = use the category colour
+  const color = /^#[0-9a-f]{6}$/i.test(input.color) ? input.color : '';
 
   return {
     category,
@@ -46,13 +53,19 @@ export function normalizePage(input) {
     tags: lines(input.tags, 10, 40),
     icon: str(input.icon, 16),
     color,
-    intro: str(input.intro, 3000),
+    scribeEmbed: scribe(input.scribeEmbed),
+    steps: Number.isInteger(input.steps) && input.steps > 0 && input.steps < 1000 ? input.steps : undefined,
+    duration: str(input.duration, 40) || undefined,
+    intro: str(input.intro, 5000),
     published: input.published !== false,
-    sections: list(input.sections, 30, s => ({
+    sections: list(input.sections, 40, s => ({
+      style: s && s.style === 'accordion' ? 'accordion' : 'plain',
       title: str(s && s.title, 200),
       subtitle: str(s && s.subtitle, 300),
       icon: str(s && s.icon, 16),
       tone: TONES.includes(s && s.tone) ? s.tone : 'red',
+      text: str(s && s.text, 20000),
+      causesTitle: str(s && s.causesTitle, 60),
       errors: lines(s && s.errors, 20, 500),
       causes: lines(s && s.causes, 20, 500),
       images: list(s && s.images, 10, image),
@@ -60,9 +73,10 @@ export function normalizePage(input) {
         label: str(ph && ph.label, 30),
         title: str(ph && ph.title, 200),
         restart: !!(ph && ph.restart),
+        letters: !!(ph && ph.letters),
         steps: list(ph && ph.steps, 60, st => ({
           title: str(st && st.title, 300),
-          text: str(st && st.text, 5000),
+          text: str(st && st.text, 10000),
           note: str(st && st.note, 2000),
           images: list(st && st.images, 10, image)
         }))

@@ -29,7 +29,16 @@ export async function onRequestPost({ request, env, data }) {
     const who = data.admin.email;
     let id = typeof body.id === 'string' ? body.id : '';
 
-    if (id) {
+    if (id && body.builtin === true) {
+      // Edited copy of a built-in page (js/data.js): same id, created on first save.
+      if (!/^[a-z0-9-]{1,80}$/.test(id)) throw new HttpError(400, 'Invalid page id');
+      await DB.prepare(
+        `INSERT INTO wiki_pages (id, category, title, data, published, builtin, created_at, created_by, updated_at, updated_by)
+         VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET category = excluded.category, title = excluded.title, data = excluded.data,
+           published = excluded.published, updated_at = excluded.updated_at, updated_by = excluded.updated_by`
+      ).bind(id, category, title, payload, published ? 1 : 0, now, who, now, who).run();
+    } else if (id) {
       const res = await DB.prepare(
         'UPDATE wiki_pages SET category = ?, title = ?, data = ?, published = ?, updated_at = ?, updated_by = ? WHERE id = ?'
       ).bind(category, title, payload, published ? 1 : 0, now, who, id).run();

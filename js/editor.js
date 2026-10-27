@@ -21,9 +21,39 @@
 
   // ---------- blank building blocks ----------
   const blankStep = () => ({ title: '', text: '', note: '', images: [] });
-  const blankPhase = n => ({ label: 'Phase ' + n, title: '', restart: false, steps: [blankStep()] });
-  const blankSection = () => ({ title: '', subtitle: '', icon: '⚠️', tone: 'red', errors: [], causes: [], images: [], phases: [blankPhase(1)] });
+  const blankPhase = n => ({ label: 'Phase ' + n, title: '', restart: false, letters: false, steps: [blankStep()] });
+  const blankSection = () => ({ style: 'accordion', title: '', subtitle: '', icon: '⚠️', tone: 'red', text: '', errors: [], causes: [], causesTitle: '', images: [], phases: [blankPhase(1)] });
   const BLANKS = { step: blankStep, phase: () => blankPhase(1), section: blankSection };
+
+  // Built-in pages omit empty fields; fill them in so every input has a value.
+  function withDefaults(page) {
+    const fill = (obj, defaults) => { Object.keys(defaults).forEach(k => { if (obj[k] == null) obj[k] = defaults[k]; }); return obj; };
+    fill(page, { title: '', description: '', tags: [], icon: '', color: '', scribeEmbed: '', intro: '', published: true, sections: [] });
+    page.sections.forEach(sec => {
+      fill(sec, { style: 'plain', title: '', subtitle: '', icon: '', tone: 'red', text: '', errors: [], causes: [], causesTitle: '', images: [], phases: [] });
+      sec.phases.forEach(ph => {
+        fill(ph, { label: '', title: '', restart: false, letters: false, steps: [] });
+        ph.steps.forEach(st => fill(st, { title: '', text: '', note: '', images: [] }));
+      });
+    });
+    return page;
+  }
+
+  // Step labels exactly as the page will show them (see page-render.js).
+  function stepLabels() {
+    const labels = {};
+    let n = 0;
+    state.sections.forEach((sec, si) => {
+      if (sec.style === 'accordion' && sec.title) n = 0;
+      sec.phases.forEach((ph, pi) => {
+        if (ph.restart) n = 0;
+        ph.steps.forEach((st, ti) => {
+          labels[`${si}.${pi}.${ti}`] = ph.letters ? String.fromCharCode(65 + (ti % 26)) : ++n;
+        });
+      });
+    });
+    return labels;
+  }
 
   // ---------- path helpers ("sections.0.phases.1.title") ----------
   function getPath(path) {
@@ -52,12 +82,12 @@
           description: '',
           tags: [],
           icon: '📄',
-          color: '#F59E0B',
+          color: '',
           intro: '',
           published: true,
           sections: [blankSection()]
         };
-    if (!state.sections) state.sections = [];
+    withDefaults(state);
     mode = 'edit';
     dirty = false;
     saving = false;
@@ -101,7 +131,7 @@
     const link = document.createElement('link');
     link.id = 'wkeCss';
     link.rel = 'stylesheet';
-    link.href = 'css/editor.css?v=1';
+    link.href = 'css/editor.css?v=2';
     document.head.appendChild(link);
   }
 
@@ -114,7 +144,9 @@
         <header class="wke-head">
           <div class="wke-head-title">
             <strong>${isNew ? 'New page' : 'Edit page'}</strong>
-            <span class="wke-head-sub">Only MIPOS staff can see this editor</span>
+            <span class="wke-head-sub">${state.builtin
+              ? 'Built-in page — you can always undo your changes with “Restore original”'
+              : 'Only MIPOS staff can see this editor'}</span>
           </div>
           <div class="wke-tabs" role="tablist">
             <button type="button" data-act="mode" data-mode="edit" aria-pressed="${mode === 'edit'}">Edit</button>
@@ -142,7 +174,7 @@
   function previewHtml() {
     return `
       <div class="article-page wke-preview">
-        ${state.published ? '' : '<span class="wk-draft-badge">Draft — customers cannot see this page</span>'}
+        ${state.published ? '' : '<span class="wk-draft-badge">Hidden — customers cannot see this page</span>'}
         <h1>${esc(state.title || 'Untitled page')}</h1>
         <p class="article-desc">${esc(state.description)}</p>
         <div class="article-content">${R.render(state)}</div>
@@ -158,11 +190,13 @@
       </label>`;
   }
 
-  function area(label, path, value, attrs = '', hint = '', kind = '') {
+  // Textareas start tall enough for their content (up to 18 lines).
+  function area(label, path, value, attrs = '', hint = '', kind = '', minRows = 2) {
+    const rows = Math.min(18, Math.max(minRows, String(value || '').split('\n').length + 1));
     return `
       <label class="wke-field">
         <span>${label}</span>
-        <textarea data-path="${path}" ${kind ? `data-kind="${kind}"` : ''} ${attrs}>${esc(value)}</textarea>
+        <textarea data-path="${path}" rows="${rows}" ${kind ? `data-kind="${kind}"` : ''} ${attrs}>${esc(value)}</textarea>
         ${hint ? `<small>${hint}</small>` : ''}
       </label>`;
   }
@@ -193,6 +227,11 @@
       </div>`;
   }
 
+  function categoryColor() {
+    const cat = opts.categories.find(c => c.id === state.category);
+    return (cat && cat.color) || '#F59E0B';
+  }
+
   function categoryOptions() {
     const groups = {};
     opts.categories.forEach(c => { (groups[c.section] = groups[c.section] || []).push(c); });
@@ -203,6 +242,7 @@
   }
 
   function formHtml() {
+    const labels = stepLabels();
     return `
       <div class="wke-form">
         <section class="wke-card">
@@ -214,89 +254,110 @@
             </label>
             ${field('Page title *', 'title', state.title, 'placeholder="e.g. Cash Drawer Troubleshooting Guide" maxlength="200"')}
           </div>
-          ${area('Short description', 'description', state.description, 'rows="2" maxlength="500" placeholder="Shown under the title and on the category card"')}
+          ${area('Short description', 'description', state.description, 'maxlength="500" placeholder="Shown under the title and on the category card"')}
           <div class="wke-grid wke-grid-3">
             ${field('Card icon (emoji)', 'icon', state.icon, 'maxlength="16" placeholder="🖨️"')}
             <label class="wke-field">
               <span>Card colour</span>
-              <input type="color" data-path="color" value="${esc(state.color || '#F59E0B')}">
+              <input type="color" data-path="color" value="${esc(state.color || categoryColor())}" title="${state.color ? '' : 'Using the category colour'}">
             </label>
             ${field('Search tags', 'tags', (state.tags || []).join(', '), 'data-kind="tags" placeholder="printer, network, LAN"', 'Separate with commas')}
           </div>
-          ${area('Intro note (orange box at the top)', 'intro', state.intro, 'rows="2" placeholder="e.g. 🖨️ Printer not working? Select the error you are seeing below…"')}
+          ${field('Interactive guide (Scribe embed link, optional)', 'scribeEmbed', state.scribeEmbed, 'placeholder="https://scribehow.com/embed/…"', 'When set, customers first see the Scribe guide and can switch to “Quick Steps”.')}
+          ${area('Intro note (orange box at the top)', 'intro', state.intro, 'placeholder="e.g. 🖨️ Printer not working? Select the error you are seeing below…"', '', '', 1)}
         </section>
 
-        <p class="wke-help">
-          <strong>Formatting:</strong> <code>**bold**</code> · <code>\`code\`</code> ·
-          start a line with <code>- </code> for bullets or <code>1. </code> for a numbered list.
-          Leave a <em>section title</em> empty to show its steps directly, without the drop-down.
-        </p>
+        <details class="wke-help">
+          <summary><strong>Formatting help</strong> — bold, lists, boxes, tables, links</summary>
+          <table>
+            <tr><td><code>**bold**</code> · <code>*italic*</code> · <code>\`code\`</code></td><td>text styles</td></tr>
+            <tr><td><code>[Guide →](https://…)</code></td><td>link</td></tr>
+            <tr><td><code>- item</code> · <code>1. item</code> · <code>a. item</code></td><td>bullet / numbered / lettered list</td></tr>
+            <tr><td><code>### Heading</code></td><td>sub-heading</td></tr>
+            <tr><td><code>&gt; text</code> · <code>! text</code> · <code>!! text</code></td><td>blue note · orange warning · red alert box</td></tr>
+            <tr><td><code>| A | B |</code><br><code>|---|---|</code><br><code>| 1 | 2 |</code></td><td>table (the <code>|---|</code> line makes the first row a header)</td></tr>
+          </table>
+          <p>A <em>collapsible box</em> section looks like the Printer guide errors. A <em>plain</em> section is a normal heading followed by its content and steps.</p>
+        </details>
 
-        ${state.sections.map((sec, si) => sectionHtml(sec, si)).join('')}
+        ${state.sections.map((sec, si) => sectionHtml(sec, si, labels)).join('')}
 
         <button type="button" class="wke-add wke-add-section" data-act="add" data-path="sections" data-type="section">
-          + Add section (e.g. another error type)
+          + Add section
         </button>
       </div>`;
   }
 
-  function sectionHtml(sec, si) {
+  function sectionHtml(sec, si, labels) {
     const p = `sections.${si}`;
+    const box = sec.style === 'accordion';
     return `
-      <section class="wke-card wke-section">
+      <section class="wke-card wke-section${box ? '' : ' wke-section-plain'}">
         <div class="wke-card-head">
           <h3>Section ${si + 1}${sec.title ? ': ' + esc(sec.title) : ''}</h3>
           ${tools(p, si, state.sections.length, 'section')}
         </div>
-        <div class="wke-grid wke-grid-sec">
-          ${field('Icon', `${p}.icon`, sec.icon, 'maxlength="16" placeholder="⏱️"')}
+        <div class="wke-grid wke-grid-style">
           <label class="wke-field">
-            <span>Icon colour</span>
-            <select data-path="${p}.tone">
-              ${Object.keys(TONE_NAMES).map(t => `<option value="${t}" ${t === sec.tone ? 'selected' : ''}>${TONE_NAMES[t]}</option>`).join('')}
+            <span>Style</span>
+            <select data-path="${p}.style">
+              <option value="accordion" ${box ? 'selected' : ''}>Collapsible box</option>
+              <option value="plain" ${box ? '' : 'selected'}>Plain heading</option>
             </select>
           </label>
-          ${field('Section title', `${p}.title`, sec.title, 'placeholder="e.g. Connection Timed Out / No Route to Host"')}
+          ${field(box ? 'Box title' : 'Heading (optional)', `${p}.title`, sec.title, `placeholder="${box ? 'e.g. Connection Timed Out / No Route to Host' : 'e.g. Step 1 — Obtain Account Codes'}"`)}
         </div>
-        ${field('One-line summary', `${p}.subtitle`, sec.subtitle, 'placeholder="e.g. Printer cannot reach the network — usually a cable or router issue"')}
-        <div class="wke-grid">
-          ${area('Error messages (one per line)', `${p}.errors`, (sec.errors || []).join('\n'), 'rows="3" placeholder="SocketException: Connection timed out…"', '', 'lines')}
-          ${area('Common causes (one per line)', `${p}.causes`, (sec.causes || []).join('\n'), 'rows="3" placeholder="Loose or faulty **LAN cable**"', '', 'lines')}
-        </div>
-        ${imagesHtml(`${p}.images`, sec.images, 'Error screenshots')}
+        ${box ? `
+          <div class="wke-grid wke-grid-sec">
+            ${field('Icon', `${p}.icon`, sec.icon, 'maxlength="16" placeholder="⏱️"')}
+            <label class="wke-field">
+              <span>Icon colour</span>
+              <select data-path="${p}.tone">
+                ${Object.keys(TONE_NAMES).map(t => `<option value="${t}" ${t === sec.tone ? 'selected' : ''}>${TONE_NAMES[t]}</option>`).join('')}
+              </select>
+            </label>
+            ${field('One-line summary', `${p}.subtitle`, sec.subtitle, 'placeholder="e.g. Printer cannot reach the network — usually a cable or router issue"')}
+          </div>` : ''}
+        ${area('Content', `${p}.text`, sec.text, 'placeholder="Paragraphs, lists, boxes or tables shown before the steps (optional)"')}
+        ${box || sec.errors.length || sec.causes.length ? `
+          <div class="wke-grid">
+            ${area('Error messages (one per line)', `${p}.errors`, sec.errors.join('\n'), 'placeholder="SocketException: Connection timed out…"', '', 'lines')}
+            <div>
+              ${field('Second card heading', `${p}.causesTitle`, sec.causesTitle, 'placeholder="Common Causes"')}
+              ${area('Card items (one per line)', `${p}.causes`, sec.causes.join('\n'), 'placeholder="Loose or faulty **LAN cable**"', '', 'lines')}
+            </div>
+          </div>` : ''}
+        ${imagesHtml(`${p}.images`, sec.images, box ? 'Error screenshots' : 'Images')}
 
-        ${(sec.phases || []).map((ph, pi) => phaseHtml(ph, si, pi, sec.phases.length)).join('')}
+        ${sec.phases.map((ph, pi) => phaseHtml(ph, si, pi, sec.phases.length, labels)).join('')}
 
-        <button type="button" class="wke-add" data-act="add" data-path="${p}.phases" data-type="phase">+ Add phase</button>
+        <button type="button" class="wke-add" data-act="add" data-path="${p}.phases" data-type="phase">+ Add ${sec.phases.length ? 'phase' : 'steps'}</button>
       </section>`;
   }
 
-  function phaseHtml(ph, si, pi, count) {
+  function phaseHtml(ph, si, pi, count, labels) {
     const p = `sections.${si}.phases.${pi}`;
-    // Step numbers continue across phases unless a phase restarts them.
-    let n = 0;
-    const phases = state.sections[si].phases;
-    for (let i = 0; i < pi; i++) {
-      if (phases[i].restart) n = 0;
-      n += phases[i].steps.length;
-    }
-    if (ph.restart) n = 0;
-
     return `
       <div class="wke-phase">
         <div class="wke-card-head">
-          <h4>Phase ${pi + 1}</h4>
+          <h4>${ph.label || ph.title ? 'Phase ' + (pi + 1) : 'Steps'}</h4>
           ${tools(p, pi, count, 'phase')}
         </div>
         <div class="wke-grid wke-grid-phase">
-          ${field('Badge', `${p}.label`, ph.label, 'maxlength="30" placeholder="Phase 1"')}
-          ${field('Phase title', `${p}.title`, ph.title, 'placeholder="e.g. Hardware Check"')}
-          <label class="wke-check">
-            <input type="checkbox" data-path="${p}.restart" data-kind="bool" ${ph.restart ? 'checked' : ''}>
-            Restart step numbers at 1
-          </label>
+          ${field('Badge (optional)', `${p}.label`, ph.label, 'maxlength="30" placeholder="Phase 1"')}
+          ${field('Phase title (optional)', `${p}.title`, ph.title, 'placeholder="e.g. Hardware Check"')}
+          <div>
+            <label class="wke-check">
+              <input type="checkbox" data-path="${p}.restart" data-kind="bool" ${ph.restart ? 'checked' : ''}>
+              Restart numbers at 1
+            </label>
+            <label class="wke-check">
+              <input type="checkbox" data-path="${p}.letters" data-kind="bool" ${ph.letters ? 'checked' : ''}>
+              Use letters (A, B, C)
+            </label>
+          </div>
         </div>
-        ${(ph.steps || []).map((st, ti) => stepHtml(st, `${p}.steps.${ti}`, n + ti + 1, ti, ph.steps.length)).join('')}
+        ${ph.steps.map((st, ti) => stepHtml(st, `${p}.steps.${ti}`, labels[`${si}.${pi}.${ti}`], ti, ph.steps.length)).join('')}
         <button type="button" class="wke-add" data-act="add" data-path="${p}.steps" data-type="step">+ Add step</button>
       </div>`;
   }
@@ -310,8 +371,8 @@
             ${field('Step title', `${p}.title`, st.title, 'placeholder="e.g. Restart the printer and the router"')}
             ${tools(p, ti, count, 'step')}
           </div>
-          ${area('Instructions', `${p}.text`, st.text, 'rows="3" placeholder="Power off both devices, wait **10 seconds**, then power them back on."')}
-          ${area('Info box (optional, blue)', `${p}.note`, st.note, 'rows="1" placeholder="e.g. IP rules: change only the last number…"')}
+          ${area('Instructions', `${p}.text`, st.text, 'placeholder="Power off both devices, wait **10 seconds**, then power them back on."', '', '', 3)}
+          ${area('Info box (optional, blue)', `${p}.note`, st.note, 'placeholder="e.g. IP rules: change only the last number…"', '', '', 1)}
           ${imagesHtml(`${p}.images`, st.images, 'Screenshots')}
         </div>
       </div>`;
@@ -349,7 +410,7 @@
       const list = getPath(path);
       const type = btn.getAttribute('data-type');
       const item = BLANKS[type]();
-      if (type === 'phase') item.label = 'Phase ' + (list.length + 1);
+      if (type === 'phase') item.label = list.length ? 'Phase ' + (list.length + 1) : '';
       list.push(item);
     } else if (act === 'del') {
       const msg = btn.getAttribute('data-confirm');

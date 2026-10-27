@@ -13,6 +13,7 @@ export async function db(env) {
         title TEXT NOT NULL,
         data TEXT NOT NULL,
         published INTEGER NOT NULL DEFAULT 1,
+        builtin INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL,
         created_by TEXT,
         updated_at TEXT NOT NULL,
@@ -63,6 +64,7 @@ export function rowToPage(row) {
     category: row.category,
     title: row.title,
     published: !!row.published,
+    builtin: !!row.builtin,
     updatedAt: row.updated_at,
     updatedBy: row.updated_by
   };
