@@ -1,0 +1,6 @@
+# Always revalidate scripts and styles so code changes reach browsers right away
+# (Pages otherwise lets browsers cache them for 4 hours).
+/js/*
+  Cache-Control: no-cache
+/css/*
+  Cache-Control: no-cache
