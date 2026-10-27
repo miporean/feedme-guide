@@ -812,7 +812,12 @@
   async function loadCustomPages() {
     let data = {};
     if (isStaffBrowser()) {
-      try { admin = await getJson('/admin/api/me'); } catch (e) { admin = null; }
+      try {
+        admin = await getJson('/admin/api/me');
+      } catch (e) {
+        admin = null;
+        console.warn('FeedMe Wiki: staff login check failed (' + e.message + '). Open /admin for details.');
+      }
     }
     try {
       data = await getJson(admin ? '/admin/api/pages' : '/api/pages');
@@ -821,6 +826,12 @@
     customLoaded = true;
     renderAdminBar();
     render();
+
+    // "+ New page" on the staff page links here with ?new=1
+    if (admin && new URLSearchParams(location.search).get('new') === '1') {
+      history.replaceState({}, '', location.pathname);
+      openEditor(null, null);
+    }
   }
 
   async function reloadCustomPages() {
@@ -844,6 +855,7 @@
       bar.innerHTML = `
         <span class="wk-admin-who" title="${WikiRender.esc(admin.email)}">MIPOS · ${WikiRender.esc(admin.email.split('@')[0])}</span>
         <button type="button" class="wk-btn wk-btn-primary" id="wkNewPage">+ New page</button>
+        <a class="wk-admin-link" href="/admin/">Staff page</a>
         <a class="wk-admin-link" href="/cdn-cgi/access/logout" id="wkLogout">Log out</a>`;
       bar.querySelector('#wkNewPage').addEventListener('click', () => {
         const cat = getParams().category;
@@ -863,7 +875,7 @@
     if (!editorLoading) {
       editorLoading = new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = 'js/editor.js?v=2';
+        s.src = 'js/editor.js?v=3';
         s.onload = resolve;
         s.onerror = () => { editorLoading = null; reject(new Error('Could not load the editor')); };
         document.head.appendChild(s);

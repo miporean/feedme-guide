@@ -1,16 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex">
-  <title>FeedMe Wiki — MIPOS staff</title>
+  <title>FeedMe Wiki — MIPOS Staff</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css?v=3">
+  <link rel="icon" href="/img/mipos-logo.svg" type="image/svg+xml">
+  <style>
+    .adm { max-width: 860px; margin: 0 auto; padding: 40px 20px 80px; }
+    .adm h1 { font-size: 28px; margin-bottom: 6px; }
+    .adm .sub { color: var(--text-secondary); margin-bottom: 28px; }
+    .adm-card { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px 24px; margin-bottom: 20px; background: var(--bg); box-shadow: var(--shadow-sm); }
+    .adm-card h2 { font-size: 17px; margin-bottom: 12px; }
+    .adm-status { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+    .adm-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; }
+    .adm-ok .adm-dot { background: #16A34A; }
+    .adm-bad .adm-dot { background: #DC2626; }
+    .adm-detail { margin-top: 8px; font-size: 13px; color: var(--text-secondary); white-space: pre-wrap; }
+    .adm-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .adm-actions a { text-decoration: none; }
+    .adm-list { list-style: none; }
+    .adm-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid var(--border-light); font-size: 14px; }
+    .adm-list li:first-child { border-top: 0; }
+    .adm-list a { font-weight: 600; color: var(--text); }
+    .adm-list a:hover { color: var(--primary); }
+    .adm-meta { color: var(--text-muted); font-size: 12px; margin-left: auto; }
+    .adm-empty { color: var(--text-muted); font-size: 14px; }
+  </style>
 </head>
+
 <body>
-  <p>Signed in. Taking you to the wiki…</p>
+  <header class="header">
+    <a href="/" class="logo">
+      <img src="/img/mipos-logo.svg" alt="MIPOS" class="logo-icon-img" width="36" height="36">
+      FeedMe Wiki <span class="logo-by">by MIPOS</span>
+    </a>
+    <nav class="nav">
+      <a href="/">Wiki home</a>
+      <a href="/cdn-cgi/access/logout" id="logout">Log out</a>
+    </nav>
+  </header>
+
+  <main class="adm">
+    <h1>MIPOS Staff</h1>
+    <p class="sub">Create and edit FeedMe Wiki pages. Customers never see this page or the edit buttons.</p>
+
+    <section class="adm-card">
+      <h2>Your login</h2>
+      <div class="adm-status" id="status"><span class="adm-dot"></span><span id="statusText">Checking…</span></div>
+      <div class="adm-detail" id="statusDetail"></div>
+    </section>
+
+    <section class="adm-card">
+      <h2>Edit the wiki</h2>
+      <div class="adm-actions">
+        <a class="wk-btn wk-btn-primary" href="/?new=1">+ New page</a>
+        <a class="wk-btn" href="/">Open the wiki with edit buttons</a>
+      </div>
+      <p class="adm-detail">While you are signed in on this browser, every guide shows <strong>✏️ Edit page</strong>. Built-in guides also get <strong>↺ Restore original</strong> after you change them.</p>
+    </section>
+
+    <section class="adm-card">
+      <h2>Pages changed by staff</h2>
+      <ul class="adm-list" id="pages"><li class="adm-empty">Loading…</li></ul>
+    </section>
+  </main>
+
   <script>
-    // Remember this browser belongs to MIPOS staff so the wiki shows edit tools.
-    try { localStorage.setItem('wikiStaff', '1'); } catch (e) {}
-    location.replace('/');
+    (function () {
+      // Remember this browser belongs to MIPOS staff so the wiki shows edit tools.
+      try { localStorage.setItem('wikiStaff', '1'); } catch (e) {}
+      document.getElementById('logout').addEventListener('click', function () {
+        try { localStorage.removeItem('wikiStaff'); } catch (e) {}
+      });
+
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+
+      function setStatus(ok, text, detail) {
+        document.getElementById('status').className = 'adm-status ' + (ok ? 'adm-ok' : 'adm-bad');
+        document.getElementById('statusText').textContent = text;
+        document.getElementById('statusDetail').textContent = detail || '';
+      }
+
+      // The same request the wiki makes to decide whether to show edit tools,
+      // so any problem is visible here instead of the buttons silently missing.
+      fetch('/admin/api/me', { cache: 'no-store', credentials: 'same-origin', redirect: 'manual' })
+        .then(function (res) {
+          if (res.type === 'opaqueredirect' || res.status === 0) {
+            throw new Error('The login check was redirected by Cloudflare Access (session expired?). Refresh this page.');
+          }
+          return res.json().catch(function () { return {}; }).then(function (body) {
+            if (!res.ok) throw new Error('Server answered ' + res.status + ': ' + (body.error || 'unknown error'));
+            return body;
+          });
+        })
+        .then(function (me) {
+          setStatus(true, 'Signed in as ' + me.email, 'Edit tools are switched on for this browser.');
+          return fetch('/admin/api/pages', { cache: 'no-store', credentials: 'same-origin' }).then(function (r) { return r.json(); });
+        })
+        .then(function (data) {
+          var pages = (data && data.pages) || [];
+          var list = document.getElementById('pages');
+          if (!pages.length) {
+            list.innerHTML = '<li class="adm-empty">No pages created or edited yet.</li>';
+            return;
+          }
+          pages.sort(function (a, b) { return (b.updatedAt || '').localeCompare(a.updatedAt || ''); });
+          list.innerHTML = pages.map(function (p) {
+            var badges = (p.builtin ? '<span class="wk-edited-badge">Edited built-in</span>' : '<span class="wk-edited-badge">New page</span>') +
+              (p.published ? '' : ' <span class="wk-draft-badge">Hidden</span>');
+            var when = p.updatedAt ? new Date(p.updatedAt).toLocaleString() : '';
+            return '<li><a href="/?article=' + encodeURIComponent(p.id) + '">' + esc(p.title) + '</a> ' + badges +
+              '<span class="adm-meta">' + esc(when) + (p.updatedBy ? ' · ' + esc(p.updatedBy) : '') + '</span></li>';
+          }).join('');
+        })
+        .catch(function (err) {
+          setStatus(false, 'Edit tools are not available', err.message);
+          document.getElementById('pages').innerHTML = '<li class="adm-empty">—</li>';
+        });
+    })();
   </script>
 </body>
+
 </html>
