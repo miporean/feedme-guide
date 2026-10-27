@@ -1,0 +1,437 @@
+/* FeedMe Wiki — page editor (MIPOS staff only, loaded on demand) */
+body.wke-open {
+  overflow: hidden;
+}
+
+.wke-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(26, 26, 46, 0.55);
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+
+.wke-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 980px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+.wke-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  padding: 14px 20px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.wke-head-title {
+  display: flex;
+  flex-direction: column;
+  margin-right: auto;
+}
+
+.wke-head-title strong {
+  font-size: 17px;
+}
+
+.wke-head-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.wke-tabs {
+  display: inline-flex;
+  padding: 3px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.wke-tabs button {
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.wke-tabs button[aria-pressed="true"] {
+  background: var(--bg);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.wke-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wke-publish {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-right: 4px;
+  cursor: pointer;
+}
+
+.wke-msg {
+  padding: 10px 20px;
+  background: #ECFDF5;
+  color: #065F46;
+  font-size: 14px;
+}
+
+.wke-msg-error {
+  background: #FEF2F2;
+  color: #991B1B;
+}
+
+.wke-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.wke-preview {
+  background: var(--bg);
+  border-radius: var(--radius-md);
+  padding: 32px;
+  max-width: none;
+  margin: 0;
+}
+
+.wke-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.wke-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+.wke-card h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.wke-section {
+  border-left: 4px solid var(--primary);
+}
+
+.wke-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wke-card-head > .wke-field {
+  flex: 1;
+}
+
+.wke-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+
+.wke-grid-3 {
+  grid-template-columns: 140px 110px 1fr;
+}
+
+.wke-grid-sec {
+  grid-template-columns: 90px 120px 1fr;
+}
+
+.wke-grid-phase {
+  grid-template-columns: 140px 1fr auto;
+  align-items: end;
+}
+
+.wke-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+  min-width: 0;
+}
+
+.wke-field > span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.wke-field small {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.wke-field input[type="text"],
+.wke-field select,
+.wke-field textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  font: inherit;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.wke-field textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.wke-field input[type="color"] {
+  width: 100%;
+  height: 40px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  cursor: pointer;
+}
+
+.wke-field input:focus,
+.wke-field select:focus,
+.wke-field textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-bg);
+}
+
+.wke-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.wke-help {
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 0 4px;
+}
+
+.wke-help code {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 4px;
+  font-size: 12px;
+}
+
+.wke-tools {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.wke-step .wke-card-head > .wke-tools {
+  margin-top: 20px;
+}
+
+.wke-tools button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.wke-tools button:hover:not(:disabled) {
+  border-color: var(--primary);
+}
+
+.wke-tools button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.wke-phase {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+}
+
+.wke-phase h4 {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.wke-step {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+}
+
+.wke-step-num {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.wke-step-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.wke-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wke-thumb {
+  position: relative;
+}
+
+.wke-thumb img {
+  display: block;
+  height: 84px;
+  max-width: 160px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.wke-thumb-del {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 0;
+  background: #DC2626;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.wke-add-img {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 130px;
+  height: 84px;
+  border: 2px dashed var(--border);
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.wke-add-img span {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.wke-add-img small {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.wke-add-img:hover,
+.wke-add:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.wke-add {
+  margin-top: 10px;
+  padding: 10px;
+  width: 100%;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.wke-add-section {
+  background: var(--bg);
+  padding: 14px;
+}
+
+@media (max-width: 768px) {
+  .wke-overlay {
+    padding: 0;
+  }
+
+  .wke-panel {
+    border-radius: 0;
+  }
+
+  .wke-head-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .wke-grid,
+  .wke-grid-3,
+  .wke-grid-sec,
+  .wke-grid-phase {
+    grid-template-columns: 1fr;
+  }
+
+  .wke-body {
+    padding: 12px;
+  }
+
+  .wke-step {
+    flex-direction: column;
+  }
+}

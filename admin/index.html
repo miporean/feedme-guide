@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex">
+  <title>FeedMe Wiki — MIPOS staff</title>
+</head>
+<body>
+  <p>Signed in. Taking you to the wiki…</p>
+  <script>
+    // Remember this browser belongs to MIPOS staff so the wiki shows edit tools.
+    try { localStorage.setItem('wikiStaff', '1'); } catch (e) {}
+    location.replace('/');
+  </script>
+</body>
+</html>

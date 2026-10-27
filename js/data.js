@@ -526,6 +526,17 @@ const SITE_DATA = {
       ]
     },
     {
+      id: "pos-setup",
+      section: "pos",
+      name: "POS Guides",
+      icon: "📱",
+      color: "#4A6CF7",
+      bgColor: "#EEF2FF",
+      description: "FeedMe POS setup and usage guides.",
+      // Pages are added by MIPOS staff in the in-browser editor
+      articles: []
+    },
+    {
       id: "integration-setup",
       section: "integration",
       name: "Integration Setup",

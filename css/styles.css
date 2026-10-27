@@ -1368,3 +1368,181 @@ img {
 ::-webkit-scrollbar-thumb:hover {
   background: #aaa;
 }
+/* ===== PAGES BUILT IN THE EDITOR ===== */
+.wk-imgs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.wk-imgs a {
+  flex: 0 1 calc(33.333% - 6px);
+  min-width: 140px;
+}
+
+.wk-imgs-1 a {
+  flex-basis: auto;
+}
+
+.wk-imgs img {
+  display: block;
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.wk-imgs-big {
+  margin: 0 0 28px;
+}
+
+.wk-imgs-big a {
+  flex: 0 1 auto;
+  max-width: 380px;
+}
+
+.wk-imgs-big img {
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ===== MIPOS STAFF TOOLS (only rendered for signed-in staff) ===== */
+.wk-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.wk-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.wk-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.wk-btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.wk-btn-primary:hover {
+  background: var(--primary-dark);
+  color: #fff;
+}
+
+.wk-btn-danger:hover {
+  border-color: #DC2626;
+  color: #DC2626;
+}
+
+.wk-admin-bar {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 8px 8px 16px;
+  background: var(--dark);
+  color: #fff;
+  border-radius: 999px;
+  box-shadow: var(--shadow-lg);
+  font-size: 13px;
+}
+
+.wk-admin-who {
+  font-weight: 600;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wk-admin-bar .wk-btn {
+  border-radius: 999px;
+}
+
+.wk-admin-link {
+  color: #ccc;
+  font-size: 13px;
+  padding-right: 8px;
+}
+
+.wk-admin-link:hover {
+  color: #fff;
+}
+
+.wk-add-card {
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 180px;
+  border: 2px dashed var(--border);
+  background: var(--bg-subtle);
+  box-shadow: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.wk-add-card:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.wk-add-card small {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.wk-add-plus {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.wk-admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 16px;
+}
+
+.wk-draft-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #FEF3C7;
+  color: #92400E;
+  font-size: 12px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+  .wk-admin-bar {
+    left: 16px;
+    justify-content: space-between;
+  }
+
+  .wk-imgs a {
+    flex-basis: 100%;
+  }
+}

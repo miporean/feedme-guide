@@ -45,6 +45,7 @@
       'connect-setup': 'tag-connect',
       'restaurant-operation': 'tag-operations',
       'hrm': 'tag-hrm',
+      'pos-setup': 'tag-connect',
       'integration-setup': 'tag-integration',
       'troubleshooting': 'tag-troubleshooting'
     };
@@ -55,6 +56,7 @@
   const PORTAL_CATS = ['menu-setup', 'connect-setup', 'restaurant-operation', 'hrm'];
 
   const INTEGRATION_CATS = ['integration-setup'];
+  const POS_CATS = ['pos-setup'];
 
   function isPortalCategory(catId) {
     return PORTAL_CATS.includes(catId);
@@ -64,12 +66,30 @@
     return INTEGRATION_CATS.includes(catId);
   }
 
+  function isPosCategory(catId) {
+    return POS_CATS.includes(catId);
+  }
+
+  // Top-nav section a category belongs to.
+  function navSection(catId) {
+    return isPortalCategory(catId) ? 'portal' : isIntegrationCategory(catId) ? 'integration' : isPosCategory(catId) ? 'pos' : catId;
+  }
+
+  // Breadcrumb link to the parent section (Portal / Integration / POS), if any.
+  function parentCrumb(catId) {
+    if (isPortalCategory(catId)) return `<a href="index.html?category=portal" data-category="portal">Portal</a><span>›</span>`;
+    if (isIntegrationCategory(catId)) return `<a href="index.html?category=integration" data-category="integration">Integration</a><span>›</span>`;
+    if (isPosCategory(catId)) return `<a href="index.html?category=pos" data-category="pos">POS</a><span>›</span>`;
+    return '';
+  }
+
   function getCatLabel(catId) {
     const map = {
       'menu-setup': 'Menu',
       'connect-setup': 'Connect',
       'restaurant-operation': 'Operations',
       'hrm': 'HRM',
+      'pos-setup': 'POS',
       'integration-setup': 'Integration',
       'troubleshooting': 'Troubleshooting'
     };
@@ -101,6 +121,41 @@
     search: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
   };
 
+  // ===== ARTICLE CARD GRID =====
+  function articleGrid(cat) {
+    const cards = cat.articles.map((article, i) => {
+      const color = article.articleColor || cat.color;
+      const icon = article.articleIcon || cat.icon;
+      const tags = (article.tags || []).slice(0, 3);
+      return `
+            <a class="ts-card animate-in" data-article="${article.id}" style="animation-delay: ${i * 0.08}s; --card-accent: ${color};">
+              <div class="ts-card-header">
+                <div class="ts-card-icon" style="background: ${color}15; color: ${color};">
+                  ${icon}
+                </div>
+                <span class="ts-card-arrow">${icons.arrow}</span>
+              </div>
+              <h3 class="ts-card-title">${article.title}${article.draft ? ' <span class="wk-draft-badge">Draft</span>' : ''}</h3>
+              <p class="ts-card-desc">${article.description}</p>
+              ${tags.length ? `
+                <div class="ts-card-tags">
+                  ${tags.map(tag => `<span class="ts-tag" style="background: ${color}12; color: ${color}; border: 1px solid ${color}25;">${tag}</span>`).join('')}
+                </div>
+              ` : ''}
+            </a>`;
+    });
+    if (admin) {
+      cards.push(`
+            <button type="button" class="ts-card wk-add-card" data-new-page="${cat.id}">
+              <span class="wk-add-plus">+</span>
+              <span>Add new page to ${cat.name}</span>
+              <small>Only MIPOS staff can see this</small>
+            </button>`);
+    }
+    if (!cards.length) return '';
+    return `<div class="ts-grid">${cards.join('')}</div>`;
+  }
+
   // ===== RENDER HOME PAGE =====
   function renderHome() {
     updateNav('home');
@@ -112,6 +167,8 @@
     const portalArticleCount = portalCats.reduce((sum, c) => sum + c.articles.length, 0);
     const integrationArticleCount = integrationCats.reduce((sum, c) => sum + c.articles.length, 0);
     const tsArticleCount = troubleshootingCat ? troubleshootingCat.articles.length : 0;
+    const posCat = findCategory('pos-setup');
+    const posArticleCount = posCat ? posCat.articles.length : 0;
 
     const topSections = [
       {
@@ -130,7 +187,7 @@
         color: '#4A6CF7',
         bgColor: '#EEF2FF',
         description: 'POS system setup and usage tutorials.',
-        count: 0
+        count: posArticleCount
       },
       {
         id: 'integration',
@@ -236,29 +293,7 @@
       </section>
 
       <section class="category-articles">
-        <div class="ts-grid">
-          ${cat.articles.map((article, i) => {
-      const color = article.articleColor || cat.color;
-      const icon = article.articleIcon || cat.icon;
-      const tags = (article.tags || []).slice(0, 3);
-      return `
-            <a class="ts-card animate-in" data-article="${article.id}" style="animation-delay: ${i * 0.08}s; --card-accent: ${color};">
-              <div class="ts-card-header">
-                <div class="ts-card-icon" style="background: ${color}15; color: ${color};">
-                  ${icon}
-                </div>
-                <span class="ts-card-arrow">${icons.arrow}</span>
-              </div>
-              <h3 class="ts-card-title">${article.title}</h3>
-              <p class="ts-card-desc">${article.description}</p>
-              ${tags.length ? `
-                <div class="ts-card-tags">
-                  ${tags.map(tag => `<span class="ts-tag" style="background: ${color}12; color: ${color}; border: 1px solid ${color}25;">${tag}</span>`).join('')}
-                </div>
-              ` : ''}
-            </a>`;
-    }).join('')}
-        </div>
+        ${articleGrid(cat)}
       </section>
     `;
 
@@ -317,6 +352,7 @@
   // ===== RENDER POS LANDING PAGE =====
   function renderPOS() {
     updateNav('pos');
+    const posCat = findCategory('pos-setup');
 
     app.innerHTML = `
       <section class="category-hero">
@@ -337,11 +373,12 @@
       </section>
 
       <section class="category-articles">
-        <div class="empty-state" style="text-align: center; padding: 60px 20px;">
+        ${posCat && posCat.articles.length ? '' : `<div class="empty-state" style="text-align: center; padding: 60px 20px;">
           <div style="font-size: 48px; margin-bottom: 16px;">🚧</div>
           <h3 style="color: var(--text); margin-bottom: 8px;">Coming Soon</h3>
           <p style="color: var(--text-muted);">POS guides are being prepared. Check back soon!</p>
-        </div>
+        </div>`}
+        ${posCat ? articleGrid(posCat) : ''}
       </section>
     `;
 
@@ -375,29 +412,7 @@
       </section>
 
       <section class="category-articles">
-        <div class="ts-grid">
-          ${cat.articles.map((article, i) => {
-      const color = article.articleColor || cat.color;
-      const icon = article.articleIcon || cat.icon;
-      const tags = (article.tags || []).slice(0, 3);
-      return `
-            <a class="ts-card animate-in" data-article="${article.id}" style="animation-delay: ${i * 0.08}s; --card-accent: ${color};">
-              <div class="ts-card-header">
-                <div class="ts-card-icon" style="background: ${color}15; color: ${color};">
-                  ${icon}
-                </div>
-                <span class="ts-card-arrow">${icons.arrow}</span>
-              </div>
-              <h3 class="ts-card-title">${article.title}</h3>
-              <p class="ts-card-desc">${article.description}</p>
-              ${tags.length ? `
-                <div class="ts-card-tags">
-                  ${tags.map(tag => `<span class="ts-tag" style="background: ${color}12; color: ${color}; border: 1px solid ${color}25;">${tag}</span>`).join('')}
-                </div>
-              ` : ''}
-            </a>`;
-    }).join('')}
-        </div>
+        ${articleGrid(cat)}
       </section>
     `;
 
@@ -415,16 +430,9 @@
     const cat = findCategory(catId);
     if (!cat) { renderHome(); return; }
 
-    updateNav(isPortalCategory(catId) ? 'portal' : isIntegrationCategory(catId) ? 'integration' : catId);
+    updateNav(navSection(catId));
 
-    // Build breadcrumb with parent if applicable
-    const breadcrumbParts = [`<a href="index.html" data-page="home">Home</a><span>›</span>`];
-    if (isPortalCategory(catId)) {
-      breadcrumbParts.push(`<a href="index.html?category=portal" data-category="portal">Portal</a><span>›</span>`);
-    } else if (isIntegrationCategory(catId)) {
-      breadcrumbParts.push(`<a href="index.html?category=integration" data-category="integration">Integration</a><span>›</span>`);
-    }
-    breadcrumbParts.push(cat.name);
+    const breadcrumbParts = [`<a href="index.html" data-page="home">Home</a><span>›</span>`, parentCrumb(catId), cat.name];
 
     app.innerHTML = `
       <section class="category-hero">
@@ -443,29 +451,7 @@
       </section>
 
       <section class="category-articles">
-        <div class="ts-grid">
-          ${cat.articles.map((article, i) => {
-      const color = article.articleColor || cat.color;
-      const icon = article.articleIcon || cat.icon;
-      const tags = (article.tags || []).slice(0, 3);
-      return `
-            <a class="ts-card animate-in" data-article="${article.id}" style="animation-delay: ${i * 0.08}s; --card-accent: ${color};">
-              <div class="ts-card-header">
-                <div class="ts-card-icon" style="background: ${color}15; color: ${color};">
-                  ${icon}
-                </div>
-                <span class="ts-card-arrow">${icons.arrow}</span>
-              </div>
-              <h3 class="ts-card-title">${article.title}</h3>
-              <p class="ts-card-desc">${article.description}</p>
-              ${tags.length ? `
-                <div class="ts-card-tags">
-                  ${tags.map(tag => `<span class="ts-tag" style="background: ${color}12; color: ${color}; border: 1px solid ${color}25;">${tag}</span>`).join('')}
-                </div>
-              ` : ''}
-            </a>`;
-    }).join('')}
-        </div>
+        ${articleGrid(cat)}
       </section>
     `;
 
@@ -476,10 +462,18 @@
   // ===== RENDER ARTICLE PAGE =====
   function renderArticle(articleId) {
     const result = findArticle(articleId);
-    if (!result) { renderHome(); return; }
+    if (!result) {
+      // Pages made in the editor arrive a moment after the first render.
+      if (!customLoaded) {
+        app.innerHTML = '<div class="page-loading"><div class="scribe-loading-spinner"></div></div>';
+        return;
+      }
+      renderHome();
+      return;
+    }
 
     const { article, category } = result;
-    updateNav(isPortalCategory(category.id) ? 'portal' : isIntegrationCategory(category.id) ? 'integration' : category.id);
+    updateNav(navSection(category.id));
 
     // Build view toggle if scribeEmbed is available
     let viewToggle = '';
@@ -526,11 +520,18 @@
         <div class="breadcrumb">
           <a href="index.html" data-page="home">Home</a>
           <span>›</span>
-          ${isPortalCategory(category.id) ? `<a href="index.html?category=portal" data-category="portal">Portal</a><span>›</span>` : isIntegrationCategory(category.id) ? `<a href="index.html?category=integration" data-category="integration">Integration</a><span>›</span>` : ''}
+          ${parentCrumb(category.id)}
           <a href="index.html?category=${category.id}" data-category="${category.id}">${category.name}</a>
           <span>›</span>
           ${article.title}
         </div>
+
+        ${admin && article.custom ? `
+          <div class="wk-admin-actions">
+            ${article.draft ? '<span class="wk-draft-badge">Draft — customers cannot see this page</span>' : ''}
+            <button type="button" class="wk-btn" data-edit-page="${article.id}">✏️ Edit page</button>
+            <button type="button" class="wk-btn wk-btn-danger" data-delete-page="${article.id}">🗑 Delete</button>
+          </div>` : ''}
 
         <h1>${article.title}</h1>
         <p class="article-desc">${article.description}</p>
@@ -544,7 +545,7 @@
         ${embedSection}
 
         <div class="article-content" id="stepsView" style="${article.scribeEmbed ? 'display:none' : ''}">
-          ${article.content}
+          ${article.custom ? WikiRender.render(article.page) : article.content}
         </div>
 
         <a class="back-link" data-category="${category.id}">
@@ -668,6 +669,20 @@
       });
     });
 
+    // MIPOS-only buttons
+    document.querySelectorAll('[data-new-page]').forEach(el => {
+      el.addEventListener('click', () => openEditor(null, el.getAttribute('data-new-page')));
+    });
+    document.querySelectorAll('[data-edit-page]').forEach(el => {
+      el.addEventListener('click', () => {
+        const found = findArticle(el.getAttribute('data-edit-page'));
+        if (found) openEditor(found.article.page);
+      });
+    });
+    document.querySelectorAll('[data-delete-page]').forEach(el => {
+      el.addEventListener('click', () => deletePage(el.getAttribute('data-delete-page')));
+    });
+
     // Home page clicks
     document.querySelectorAll('[data-page="home"]').forEach(el => {
       el.addEventListener('click', function (e) {
@@ -680,7 +695,7 @@
   // ===== NAV STATE =====
   function updateNav(activeId) {
     // Map portal subcategories to 'portal' for nav highlighting
-    const navId = isPortalCategory(activeId) ? 'portal' : activeId;
+    const navId = navSection(activeId);
     nav.querySelectorAll('a').forEach(a => {
       a.classList.remove('active');
       if (navId === 'home' && a.getAttribute('data-page') === 'home') {
@@ -729,7 +744,138 @@
   // Handle browser back/forward
   window.addEventListener('popstate', render);
 
-  // Initial render
+  // ===== PAGES MADE IN THE EDITOR (stored in D1) =====
+  let customLoaded = false;
+  let admin = null; // { email } when a MIPOS staff member is signed in
+
+  function isStaffBrowser() {
+    try { return localStorage.getItem('wikiStaff') === '1'; } catch (e) { return false; }
+  }
+
+  async function getJson(url) {
+    const res = await fetch(url, { cache: 'no-store', credentials: 'same-origin', redirect: 'manual' });
+    if (!res.ok) throw new Error(res.status);
+    return res.json();
+  }
+
+  // Article fields are inserted as HTML by the templates above, so escape
+  // anything typed into the editor before it joins SITE_DATA.
+  function toArticle(page) {
+    const esc = WikiRender.esc;
+    return {
+      id: page.id,
+      title: esc(page.title),
+      description: esc(page.description || ''),
+      tags: (page.tags || []).map(esc),
+      articleIcon: page.icon ? esc(page.icon) : '',
+      articleColor: page.color,
+      scribeEmbed: '',
+      custom: true,
+      draft: !page.published,
+      page
+    };
+  }
+
+  function mergePages(pages) {
+    SITE_DATA.categories.forEach(cat => { cat.articles = cat.articles.filter(a => !a.custom); });
+    pages.forEach(page => {
+      const cat = findCategory(page.category);
+      if (cat) cat.articles.push(toArticle(page));
+    });
+  }
+
+  async function loadCustomPages() {
+    let pages = [];
+    if (isStaffBrowser()) {
+      try { admin = await getJson('/admin/api/me'); } catch (e) { admin = null; }
+    }
+    try {
+      pages = (await getJson(admin ? '/admin/api/pages' : '/api/pages')).pages || [];
+    } catch (e) { /* editor storage not set up yet — static pages still work */ }
+    mergePages(pages);
+    customLoaded = true;
+    renderAdminBar();
+    render();
+  }
+
+  async function reloadCustomPages() {
+    const data = await getJson('/admin/api/pages');
+    mergePages(data.pages || []);
+  }
+
+  // ===== MIPOS STAFF TOOLS =====
+  // Shown only in browsers that went through /admin (Cloudflare Access login);
+  // every save is checked again on the server.
+  function renderAdminBar() {
+    let bar = document.getElementById('wkAdminBar');
+    if (!isStaffBrowser()) { if (bar) bar.remove(); return; }
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'wkAdminBar';
+      bar.className = 'wk-admin-bar';
+      document.body.appendChild(bar);
+    }
+    if (admin) {
+      bar.innerHTML = `
+        <span class="wk-admin-who" title="${WikiRender.esc(admin.email)}">MIPOS · ${WikiRender.esc(admin.email.split('@')[0])}</span>
+        <button type="button" class="wk-btn wk-btn-primary" id="wkNewPage">+ New page</button>
+        <a class="wk-admin-link" href="/cdn-cgi/access/logout" id="wkLogout">Log out</a>`;
+      bar.querySelector('#wkNewPage').addEventListener('click', () => {
+        const cat = getParams().category;
+        openEditor(null, findCategory(cat) ? cat : (cat === 'pos' ? 'pos-setup' : null));
+      });
+      bar.querySelector('#wkLogout').addEventListener('click', () => {
+        try { localStorage.removeItem('wikiStaff'); } catch (e) {}
+      });
+    } else {
+      bar.innerHTML = `<a class="wk-admin-link" href="/admin/">MIPOS staff: log in to edit</a>`;
+    }
+  }
+
+  let editorLoading = null;
+  function loadEditor() {
+    if (window.WikiEditor) return Promise.resolve();
+    if (!editorLoading) {
+      editorLoading = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'js/editor.js?v=1';
+        s.onload = resolve;
+        s.onerror = () => { editorLoading = null; reject(new Error('Could not load the editor')); };
+        document.head.appendChild(s);
+      });
+    }
+    return editorLoading;
+  }
+
+  async function openEditor(page, categoryId) {
+    if (!admin) return;
+    try { await loadEditor(); } catch (e) { alert(e.message); return; }
+    window.WikiEditor.open({
+      page,
+      categoryId,
+      categories: SITE_DATA.categories.map(c => ({ id: c.id, name: c.name, section: c.section })),
+      onSaved: async saved => {
+        await reloadCustomPages();
+        navigate({ article: saved.id });
+      }
+    });
+  }
+
+  async function deletePage(id) {
+    const found = findArticle(id);
+    if (!found || !confirm(`Delete "${found.article.page.title}"?\n\nThis cannot be undone.`)) return;
+    try {
+      const res = await fetch('/admin/api/pages/' + encodeURIComponent(id), { method: 'DELETE', credentials: 'same-origin' });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Delete failed');
+      await reloadCustomPages();
+      navigate({ category: found.category.id });
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
+  // Initial render (static pages), then again once editor pages have loaded.
   render();
+  loadCustomPages();
 
 })();
