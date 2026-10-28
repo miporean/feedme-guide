@@ -147,7 +147,11 @@ img {
   padding: 80px 40px;
   text-align: center;
   position: relative;
-  overflow: visible;
+  /* Clip the glow below at the sides (it made the page wider than the
+     screen, leaving empty space on the right); search results can still
+     drop down below the hero. */
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 .hero::before {
@@ -159,6 +163,13 @@ img {
   height: 200%;
   background: radial-gradient(ellipse, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
   pointer-events: none;
+}
+
+@supports not (overflow-x: clip) {
+  .hero::before {
+    left: 0;
+    width: 100%;
+  }
 }
 
 .hero::after {

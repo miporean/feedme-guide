@@ -7,6 +7,11 @@
   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
 
   // ===== ROUTING =====
+  // The wiki lives at "/". If it was opened at any other address, fix the URL.
+  if (location.pathname !== '/' && location.pathname !== '/index.html') {
+    history.replaceState({}, '', '/' + location.search);
+  }
+
   function getParams() {
     const params = new URLSearchParams(window.location.search);
     return {
@@ -18,6 +23,7 @@
 
   function navigate(params) {
     const url = new URL(window.location.href);
+    url.pathname = '/';
     url.search = '';
     Object.entries(params).forEach(([key, val]) => {
       if (val) url.searchParams.set(key, val);
@@ -921,7 +927,7 @@
     if (!editorLoading) {
       editorLoading = new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = 'js/editor.js?v=8';
+        s.src = 'js/editor.js?v=10';
         s.onload = resolve;
         s.onerror = () => { editorLoading = null; reject(new Error('Could not load the editor')); };
         document.head.appendChild(s);

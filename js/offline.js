@@ -179,12 +179,14 @@
   btn.className = 'wk-dl-btn';
   btn.id = 'wkDownload';
   nav.appendChild(btn);
+  // Only shown until the first download; after that updates are automatic.
   function updateButton() {
-    btn.innerHTML = isApp() || saved() ? '⟳ Update offline copy' : '📥 Download app';
+    btn.innerHTML = '📥 Download app';
     btn.title = 'Save all guides and photos to use without internet';
+    btn.hidden = isApp() || saved();
+    if (window.wikiFitHeader) window.wikiFitHeader();
   }
   updateButton();
-  if (window.wikiFitHeader) window.wikiFitHeader();
   btn.addEventListener('click', () => {
     nav.classList.remove('open');
     const menuBtn = document.getElementById('mobileMenuBtn');
@@ -192,12 +194,23 @@
     download();
   });
 
-  // Keep a saved copy fresh: when online, quietly fetch new guides and photos.
-  if (saved() && navigator.onLine) {
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        navigator.serviceWorker.ready.then(() => saveAll(null, true)).catch(() => {});
-      }, 4000);
-    });
+  // Keep the saved copy up to date automatically: whenever the wiki is opened,
+  // comes back online, or is brought back to the screen (at most every 10 min),
+  // quietly fetch new and changed guides and new photos.
+  let syncing = false;
+  let lastSync = 0;
+  function autoSync() {
+    if (!(isApp() || saved()) || !navigator.onLine || syncing) return;
+    if (Date.now() - lastSync < 10 * 60 * 1000) return;
+    syncing = true;
+    lastSync = Date.now();
+    navigator.serviceWorker.ready
+      .then(() => saveAll(null, true))
+      .then(() => { try { localStorage.setItem('wikiOffline', '1'); } catch (e) {} })
+      .catch(() => {})
+      .finally(() => { syncing = false; });
   }
+  window.addEventListener('load', () => setTimeout(autoSync, 3000));
+  window.addEventListener('online', () => { lastSync = 0; setTimeout(autoSync, 2000); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') autoSync(); });
 })();
