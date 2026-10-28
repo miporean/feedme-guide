@@ -34,7 +34,7 @@
       const u = new URL(el.getAttribute('src') || el.getAttribute('href'), location.href);
       if (u.origin === location.origin || u.hostname === 'fonts.googleapis.com') urls.add(u.href);
     });
-    ['/img/app-icon-192.png', '/img/app-icon-512.png'].forEach(p => urls.add(location.origin + p));
+    ['/img/wiki-icon-192.png', '/img/wiki-icon-512.png'].forEach(p => urls.add(location.origin + p));
     if (typeof SITE_DATA !== 'undefined') collectImages(SITE_DATA, urls);
     try {
       const res = await fetch('/api/pages', { cache: 'no-store' });
@@ -103,7 +103,7 @@
     dialog.innerHTML = `
       <div class="wk-dl-box" role="dialog" aria-modal="true" aria-labelledby="wkDlTitle">
         <button type="button" class="wk-dl-close" aria-label="Close">✕</button>
-        <img src="/img/app-icon-192.png" alt="" width="56" height="56" class="wk-dl-icon">
+        <img src="/img/wiki-icon-192.png" alt="" width="56" height="56" class="wk-dl-icon">
         <h2 id="wkDlTitle">Download FeedMe Wiki</h2>
         <p class="wk-dl-text">Saving every guide and photo on this device, so you can use it without internet.</p>
         <div class="wk-dl-bar"><div class="wk-dl-fill"></div></div>
