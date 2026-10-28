@@ -1579,3 +1579,167 @@ img {
   font-size: 12px;
   font-weight: 600;
 }
+
+/* ===== DOWNLOAD APP (offline copy) ===== */
+.wk-dl-btn {
+  margin-left: 8px;
+  padding: 7px 14px;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--primary);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.wk-dl-btn:hover {
+  background: var(--primary-bg);
+}
+
+.wk-dl-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.wk-dl-box {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 28px 24px 24px;
+  border-radius: var(--radius-md);
+  background: #fff;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+
+.wk-dl-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: 0;
+  background: none;
+  font-size: 18px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.wk-dl-icon {
+  border-radius: 14px;
+  margin-bottom: 12px;
+}
+
+.wk-dl-box h2 {
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.wk-dl-text,
+.wk-dl-install p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.wk-dl-bar {
+  height: 8px;
+  margin: 18px 0 10px;
+  border-radius: 99px;
+  background: var(--bg-subtle);
+  overflow: hidden;
+}
+
+.wk-dl-fill {
+  width: 0;
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.2s;
+}
+
+.wk-dl-done .wk-dl-fill { background: #16A34A; }
+.wk-dl-error .wk-dl-fill { background: #DC2626; }
+
+.wk-dl-status {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.wk-dl-done .wk-dl-status { color: #16A34A; }
+.wk-dl-error .wk-dl-status { color: #DC2626; }
+
+.wk-dl-install {
+  margin-top: 16px;
+}
+
+.wk-dl-install:empty {
+  display: none;
+}
+
+.wk-dl-install .wk-btn {
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .wk-dl-btn {
+    margin: 8px 0 0;
+  }
+}
+
+/* Uploaded icons (emoji icons are plain text) */
+.wk-icon-img {
+  width: 70%;
+  height: 70%;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+/* ===== Header: switch to the ☰ menu whenever the items do not fit =====
+   (js/app.js adds .wk-compact; same look as the phone menu) */
+.logo,
+.nav a,
+.wk-nav-new,
+.wk-dl-btn {
+  white-space: nowrap;
+}
+
+.header.wk-compact .nav {
+  display: none;
+  position: absolute;
+  top: 64px;
+  left: 0;
+  right: 0;
+  background: #fff;
+  flex-direction: column;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 4px;
+  box-shadow: var(--shadow-md);
+}
+
+.header.wk-compact .nav.open {
+  display: flex;
+}
+
+.header.wk-compact .mobile-menu-btn {
+  display: block;
+}
+
+.header.wk-compact .wk-nav-staff {
+  flex-wrap: wrap;
+  margin: 0 0 8px;
+  padding: 0 0 12px;
+  border-right: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.header.wk-compact .wk-dl-btn {
+  margin: 8px 0 0;
+}

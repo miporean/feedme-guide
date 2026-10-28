@@ -597,6 +597,7 @@
           }
         });
       });
+      if (!navigator.onLine) document.querySelector('.view-toggle-btn[data-view="steps"]').click();
     }
 
     setupClickHandlers();
@@ -736,6 +737,20 @@
     });
   }
 
+  // ===== HEADER FIT =====
+  // Use the ☰ menu whenever the top menu does not fit on one line
+  // (e.g. staff buttons + Download app on a small laptop).
+  const header = document.getElementById('header');
+  function fitHeader() {
+    header.classList.remove('wk-compact');
+    if (window.innerWidth > 768 && (header.scrollWidth > header.clientWidth + 1 || nav.scrollWidth > nav.clientWidth + 1)) {
+      header.classList.add('wk-compact');
+    }
+  }
+  window.wikiFitHeader = fitHeader;
+  window.addEventListener('resize', fitHeader);
+  if (document.fonts) document.fonts.ready.then(fitHeader);
+
   // ===== MOBILE MENU =====
   mobileMenuBtn.addEventListener('click', function () {
     nav.classList.toggle('open');
@@ -797,7 +812,7 @@
       title: esc(page.title),
       description: esc(page.description || ''),
       tags: (page.tags || []).map(esc),
-      articleIcon: page.icon ? esc(page.icon) : '',
+      articleIcon: page.icon ? WikiRender.icon(page.icon) : '',
       articleColor: /^#[0-9a-f]{6}$/i.test(page.color || '') ? page.color : '',
       scribeEmbed: /^https:\/\/scribehow\.com\/embed\//.test(page.scribeEmbed || '') ? page.scribeEmbed : '',
       steps: page.steps,
@@ -897,6 +912,7 @@
     } else {
       bar.innerHTML = `<a class="wk-nav-staff-link" href="/admin/">Staff login</a>`;
     }
+    fitHeader();
   }
 
   let editorLoading = null;
@@ -905,7 +921,7 @@
     if (!editorLoading) {
       editorLoading = new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = 'js/editor.js?v=6';
+        s.src = 'js/editor.js?v=8';
         s.onload = resolve;
         s.onerror = () => { editorLoading = null; reject(new Error('Could not load the editor')); };
         document.head.appendChild(s);

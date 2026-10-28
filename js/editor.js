@@ -112,12 +112,14 @@
     if (!force && dirty && !confirm('You have unsaved changes. Close without saving?')) return;
     document.removeEventListener('keydown', onKey);
     window.removeEventListener('beforeunload', onBeforeUnload);
+    closePicker();
     document.body.classList.remove('wke-open');
     if (root) root.remove();
     root = null;
   }
 
   function onKey(e) {
+    if (e.key === 'Escape' && picker) { closePicker(); return; }
     if (e.key === 'Escape') close(false);
     if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); save(); }
   }
@@ -131,7 +133,7 @@
     const link = document.createElement('link');
     link.id = 'wkeCss';
     link.rel = 'stylesheet';
-    link.href = 'css/editor.css?v=6';
+    link.href = 'css/editor.css?v=8';
     document.head.appendChild(link);
   }
 
@@ -256,7 +258,7 @@
           </div>
           ${area('Short description', 'description', state.description, 'maxlength="500" placeholder="Shown under the title and on the category card"')}
           <div class="wke-grid wke-grid-3">
-            ${field('Card icon (emoji)', 'icon', state.icon, 'maxlength="16" placeholder="🖨️"')}
+            ${iconField('Card icon', 'icon', state.icon)}
             <label class="wke-field">
               <span>Card colour</span>
               <input type="color" data-path="color" value="${esc(state.color || categoryColor())}" title="${state.color ? '' : 'Using the category colour'}">
@@ -309,7 +311,7 @@
         </div>
         ${box ? `
           <div class="wke-grid wke-grid-sec">
-            ${field('Icon (optional)', `${p}.icon`, sec.icon, 'maxlength="16" placeholder="None"')}
+            ${iconField('Icon (optional)', `${p}.icon`, sec.icon)}
             <label class="wke-field">
               <span>Icon colour</span>
               <select data-path="${p}.tone">
@@ -405,6 +407,7 @@
     if (act === 'cancel') { close(false); return; }
     if (act === 'save') { save(); return; }
     if (act === 'add-img') { pickImages(path); return; }
+    if (act === 'icon') { openPicker(btn, path); return; }
 
     if (act === 'add') {
       const list = getPath(path);
@@ -452,7 +455,7 @@
 
   // ---------- images ----------
   // Screenshots are shrunk in the browser (max 1600px, WebP) before upload.
-  async function shrink(file) {
+  async function shrink(file, max = 1600) {
     if (file.type === 'image/gif') return file;
     const url = URL.createObjectURL(file);
     try {
@@ -462,7 +465,6 @@
         i.onerror = () => reject(new Error('Could not read ' + file.name));
         i.src = url;
       });
-      const max = 1600;
       const scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
       const canvas = document.createElement('canvas');
       canvas.width = Math.round(img.naturalWidth * scale);
@@ -477,22 +479,26 @@
     }
   }
 
+  async function uploadBlob(blob) {
+    const res = await fetch('/admin/api/images', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': blob.type },
+      body: blob
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Upload failed (' + res.status + ')');
+    return data.url;
+  }
+
   async function uploadAll(path, files) {
     for (const file of files) {
       uploading++;
       render();
       try {
-        const blob = await shrink(file);
-        const res = await fetch('/admin/api/images', {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: { 'Content-Type': blob.type },
-          body: blob
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || 'Upload failed (' + res.status + ')');
+        const url = await uploadBlob(await shrink(file));
         if (!root) return; // editor closed meanwhile
-        getPath(path).push(data.url);
+        getPath(path).push(url);
         dirty = true;
       } catch (err) {
         showMsg(err.message, true);
@@ -501,6 +507,169 @@
         if (root) render();
       }
     }
+  }
+
+  // ---------- icon picker (Emoji / Upload / Remove) ----------
+  // Each group: [name, tab icon, "emoji keywords;emoji keywords;…"]
+  const EMOJI = [
+    ['Smileys & People', '😀', '😀 smile happy;😃 smile;😄 laugh;😁 grin;😅 sweat;😂 joy laugh;🙂 smile;😉 wink;😊 blush;😍 love;🤩 star;😎 cool;🤔 think;🤨 doubt;😐 neutral;😴 sleep;😷 sick mask;🤯 mind blown;😕 confused;😟 worried;😮 surprised;😢 cry sad;😭 cry;😡 angry;🤗 hug;🤫 quiet;🤝 handshake deal;👍 thumbs up ok yes;👎 thumbs down no;👌 ok;✌️ peace;🤞 fingers crossed;👉 point right;👈 point left;👆 point up;👇 point down;☝️ point;✋ hand stop;👋 wave hello;👏 clap;🙌 celebrate;🙏 please thanks;💪 strong;👀 eyes look;👤 user person;👥 users people team;🧑‍💼 staff manager;🧑‍🍳 chef cook;🧑‍💻 developer;🧑‍🔧 technician;🙋 question;🤷 unsure;🚶 walk;🏃 run'],
+    ['Food & Drink', '🍔', '🍔 burger food;🍟 fries;🍕 pizza;🌭 hotdog;🥪 sandwich;🌮 taco;🍜 noodle ramen;🍝 pasta;🍛 curry rice;🍚 rice;🍱 bento;🍣 sushi;🍤 prawn;🥟 dumpling;🍗 chicken;🍖 meat;🥩 steak;🥓 bacon;🍳 egg cook;🥗 salad;🍲 soup pot;🥘 dish;🍞 bread;🥐 croissant;🧇 waffle;🥞 pancake;🍰 cake;🎂 birthday cake;🧁 cupcake;🍩 donut;🍪 cookie;🍫 chocolate;🍦 ice cream;🍎 apple fruit;🍊 orange;🍌 banana;🍉 watermelon;🍓 strawberry;🥑 avocado;🥕 carrot;🌶️ chili spicy;☕ coffee;🍵 tea;🧋 bubble tea boba;🥤 drink cup;🧃 juice;🥛 milk;🍺 beer;🍷 wine;🍹 cocktail;🧊 ice;🍽️ dining plate restaurant;🥢 chopsticks;🍴 cutlery fork'],
+    ['Objects & Tech', '🖨️', '🖨️ printer print;🧾 receipt bill;💵 cash money;💳 card payment credit;💰 money bag;🪙 coin;🏦 bank;💸 pay;🏷️ tag price label;🛒 cart shop;🛍️ shopping;📦 box package stock inventory;🚚 delivery truck;🛵 rider delivery;📱 phone mobile tablet pos;💻 laptop;🖥️ desktop computer monitor;⌨️ keyboard;🖱️ mouse;🔌 plug power cable;🔋 battery;📶 wifi signal network;🌐 internet web globe;📡 antenna;🛜 wireless router;💾 save disk;📀 disc;🔍 search find;🔎 zoom;🔑 key password;🗝️ key;🔒 lock secure;🔓 unlock;🛡️ shield security;⚙️ settings gear;🔧 wrench fix tool;🛠️ tools repair;🔨 hammer;🧰 toolbox;🪛 screwdriver;🧲 magnet;💡 idea tip bulb;🔦 torch;📷 camera photo;📸 photo;🖼️ picture image;🎥 video;📺 tv screen;🔊 sound speaker;🔔 bell notification;📣 announce;📢 loudspeaker;⏱️ timer stopwatch;⏰ alarm clock;🕒 time clock;⌛ hourglass wait;📅 calendar date;🗓️ schedule;📆 calendar;📊 chart report;📈 growth sales;📉 decline;📋 clipboard list;📝 note edit write;✏️ pencil edit;🖊️ pen;📌 pin;📍 location;📎 attachment clip;✂️ cut;📁 folder;📂 open folder;🗂️ files;📄 page document;📃 document;📑 tabs;📚 books guide;📖 book manual;🗒️ notepad;📧 email;✉️ mail;📨 inbox;📮 mailbox;🏪 shop store;🏬 mall;🏢 office;🏠 home;🪑 chair;🚪 door;🎁 gift voucher;🎟️ ticket;🎫 coupon;🧮 abacus calculate;🧪 test;🔗 link'],
+    ['Symbols', '✅', '✅ check done yes;☑️ check;✔️ tick;❌ cross no wrong;❎ cancel;⚠️ warning alert;🚫 forbidden blocked;⛔ stop no entry;❗ important;❕ exclamation;❓ question;❔ help;ℹ️ info information;🆕 new;🆗 ok;🆙 up;🔝 top;🔄 refresh sync reload;🔃 reload;🔁 repeat;↩️ undo back;↪️ redo;⬆️ up arrow;⬇️ down arrow;⬅️ left arrow;➡️ right arrow;↗️ arrow;🔼 up;🔽 down;▶️ play start;⏸️ pause;⏹️ stop;⏏️ eject;➕ plus add;➖ minus;✖️ multiply;➗ divide;💯 hundred;🔢 numbers;🔤 letters;#️⃣ number hash;*️⃣ star;0️⃣ zero;1️⃣ one;2️⃣ two;3️⃣ three;4️⃣ four;5️⃣ five;🔴 red circle;🟠 orange;🟡 yellow;🟢 green;🔵 blue;🟣 purple;⚫ black;⚪ white;🟥 red square;🟧 orange square;🟨 yellow square;🟩 green square;🟦 blue square;⭐ star favourite;🌟 star shine;✨ sparkle new;🔥 fire hot popular;💥 boom;⚡ lightning fast power;❤️ heart love;💔 broken;♻️ recycle;🏁 finish;🚩 flag;🎯 target goal;🏆 trophy;🥇 first medal;🎉 party celebrate;🎊 confetti;©️ copyright;®️ registered;™️ trademark'],
+    ['Nature & Travel', '🌿', '🌿 leaf plant;🌱 seedling;🌳 tree;🌸 flower;🌹 rose;🌻 sunflower;🍀 clover luck;🍁 maple;☀️ sun;🌙 moon night;⛅ cloud;🌧️ rain;⛈️ storm;❄️ snow cold;🌈 rainbow;💧 water drop;🌊 wave;🌍 world earth;🗺️ map;🧭 compass;🏔️ mountain;🏖️ beach;🏝️ island;🚗 car;🚕 taxi;🚌 bus;🚲 bicycle;🏍️ motorcycle;✈️ plane flight;🚀 rocket launch;⛽ fuel;🚦 traffic light;🅿️ parking;🐶 dog;🐱 cat;🐟 fish;🐔 chicken;🐄 cow;🐷 pig;🦐 shrimp;🦀 crab'],
+    ['Flags', '🏳️', '🇲🇾 malaysia;🇸🇬 singapore;🇮🇩 indonesia;🇹🇭 thailand;🇵🇭 philippines;🇻🇳 vietnam;🇨🇳 china;🇭🇰 hong kong;🇹🇼 taiwan;🇯🇵 japan;🇰🇷 korea;🇮🇳 india;🇦🇺 australia;🇬🇧 uk britain;🇺🇸 usa america;🏳️ white flag;🏴 black flag']
+  ].map(([name, tab, list]) => ({
+    name, tab,
+    items: list.split(';').map(s => { const i = s.indexOf(' '); return { e: s.slice(0, i), k: (name + ' ' + s.slice(i + 1)).toLowerCase() }; })
+  }));
+
+  let picker = null;
+
+  function iconField(label, path, value) {
+    return `
+      <div class="wke-field">
+        <span>${label}</span>
+        <button type="button" class="wke-icon-btn" data-act="icon" data-path="${path}" title="Choose an icon">
+          ${value ? `<span class="wke-icon-cur">${R.icon(value)}</span>` : '<span class="wke-icon-empty">＋ Add icon</span>'}
+        </button>
+      </div>`;
+  }
+
+  function recentIcons() {
+    try { return JSON.parse(localStorage.getItem('wikiRecentIcons') || '[]').slice(0, 16); } catch (e) { return []; }
+  }
+
+  function setIcon(path, value) {
+    setPath(path, value);
+    if (value) {
+      try { localStorage.setItem('wikiRecentIcons', JSON.stringify([value, ...recentIcons().filter(v => v !== value)].slice(0, 16))); } catch (e) {}
+    }
+    dirty = true;
+    closePicker();
+    render();
+  }
+
+  function closePicker() {
+    if (!picker) return;
+    if (picker.cleanup) picker.cleanup();
+    picker.remove();
+    picker = null;
+    document.removeEventListener('mousedown', outsidePicker, true);
+  }
+
+  function outsidePicker(e) {
+    if (picker && !picker.contains(e.target) && !e.target.closest('[data-act="icon"]')) closePicker();
+  }
+
+  function emojiGrid(query) {
+    const q = query.trim().toLowerCase();
+    const cell = v => `<button type="button" class="wke-pick-cell" data-pick="${esc(v)}" title="${esc(v)}">${R.icon(v)}</button>`;
+    if (q) {
+      const found = EMOJI.flatMap(g => g.items).filter(it => it.k.includes(q));
+      return found.length
+        ? `<div class="wke-pick-cells">${found.map(it => cell(it.e)).join('')}</div>`
+        : '<p class="wke-pick-empty">No emoji found. Try another word, or upload your own image.</p>';
+    }
+    const recent = recentIcons();
+    return (recent.length ? `<h4 data-group="recent">Recent</h4><div class="wke-pick-cells">${recent.map(cell).join('')}</div>` : '') +
+      EMOJI.map((g, i) => `<h4 data-group="${i}">${g.name}</h4><div class="wke-pick-cells">${g.items.map(it => cell(it.e)).join('')}</div>`).join('');
+  }
+
+  function openPicker(btn, path) {
+    if (picker && picker.dataset.path === path) { closePicker(); return; }
+    closePicker();
+    picker = document.createElement('div');
+    picker.className = 'wke-picker';
+    picker.dataset.path = path;
+    let tab = 'emoji';
+
+    const draw = () => {
+      picker.innerHTML = `
+        <div class="wke-pick-head">
+          <button type="button" data-tab="emoji" aria-pressed="${tab === 'emoji'}">Emoji</button>
+          <button type="button" data-tab="upload" aria-pressed="${tab === 'upload'}">Upload</button>
+          <button type="button" class="wke-pick-remove" data-pick="">Remove</button>
+        </div>
+        ${tab === 'emoji' ? `
+          <div class="wke-pick-search"><input type="search" placeholder="Filter… e.g. printer, cash, wifi" aria-label="Filter emoji"></div>
+          <div class="wke-pick-body"></div>
+          <div class="wke-pick-tabs">
+            ${recentIcons().length ? '<button type="button" data-jump="recent" title="Recent">🕘</button>' : ''}
+            ${EMOJI.map((g, i) => `<button type="button" data-jump="${i}" title="${g.name}">${g.tab}</button>`).join('')}
+          </div>` : `
+          <div class="wke-pick-upload" data-icon-drop>
+            <button type="button" class="wk-btn wk-btn-primary" data-upload-icon>Upload an image</button>
+            <p>or drag an image here</p>
+            <small>A square image works best, e.g. a logo. PNG, JPG, WebP or GIF.</small>
+            <p class="wke-pick-status" hidden></p>
+          </div>`}`;
+      if (tab === 'emoji') {
+        const body = picker.querySelector('.wke-pick-body');
+        const input = picker.querySelector('input');
+        body.innerHTML = emojiGrid('');
+        input.addEventListener('input', () => { body.innerHTML = emojiGrid(input.value); body.scrollTop = 0; });
+        input.focus();
+      }
+    };
+
+    const upload = async file => {
+      if (!file || !file.type.startsWith('image/')) return;
+      const status = picker.querySelector('.wke-pick-status');
+      status.hidden = false;
+      status.textContent = 'Uploading…';
+      try {
+        setIcon(path, await uploadBlob(await shrink(file, 256)));
+      } catch (err) {
+        if (picker) status.textContent = err.message;
+      }
+    };
+
+    picker.addEventListener('click', e => {
+      const t = e.target.closest('button');
+      if (!t) return;
+      if (t.hasAttribute('data-tab')) { tab = t.getAttribute('data-tab'); draw(); return; }
+      if (t.hasAttribute('data-pick')) { setIcon(path, t.getAttribute('data-pick')); return; }
+      if (t.hasAttribute('data-jump')) {
+        const h = picker.querySelector(`[data-group="${t.getAttribute('data-jump')}"]`);
+        if (h) picker.querySelector('.wke-pick-body').scrollTop = h.offsetTop - picker.querySelector('.wke-pick-body').offsetTop;
+        return;
+      }
+      if (t.hasAttribute('data-upload-icon')) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/png,image/jpeg,image/webp,image/gif';
+        input.onchange = () => upload(input.files[0]);
+        input.click();
+      }
+    });
+    picker.addEventListener('dragover', e => { if (e.target.closest('[data-icon-drop]')) e.preventDefault(); });
+    picker.addEventListener('drop', e => {
+      if (!e.target.closest('[data-icon-drop]')) return;
+      e.preventDefault();
+      upload((e.dataTransfer.files || [])[0]);
+    });
+
+    document.body.appendChild(picker);
+    draw();
+
+    // Place under the button (or above it when there is no room below), and
+    // follow it when the editor scrolls.
+    const place = () => {
+      if (!picker) return;
+      const r = btn.getBoundingClientRect();
+      const w = picker.offsetWidth, h = picker.offsetHeight;
+      picker.style.left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + 'px';
+      picker.style.top = (r.bottom + 6 + h > window.innerHeight ? Math.max(8, r.top - h - 6) : r.bottom + 6) + 'px';
+    };
+    place();
+    const body = root.querySelector('.wke-body');
+    if (body) body.addEventListener('scroll', place, { passive: true });
+    window.addEventListener('resize', place);
+    picker.cleanup = () => {
+      if (body) body.removeEventListener('scroll', place);
+      window.removeEventListener('resize', place);
+    };
+    document.addEventListener('mousedown', outsidePicker, true);
   }
 
   // ---------- save ----------

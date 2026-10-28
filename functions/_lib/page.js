@@ -37,6 +37,12 @@ function image(v) {
   return null;
 }
 
+// Emoji (short text) or an image uploaded in the editor.
+function iconValue(v) {
+  const s = str(v, 60);
+  return /^\/api\/img\/[a-z0-9]{6,32}$/.test(s) ? s : s.slice(0, 16);
+}
+
 export function normalizePage(input) {
   if (!input || typeof input !== 'object') throw new HttpError(400, 'Invalid page');
   const category = str(input.category, 50);
@@ -51,7 +57,7 @@ export function normalizePage(input) {
     title,
     description: str(input.description, 500),
     tags: lines(input.tags, 10, 40),
-    icon: str(input.icon, 16),
+    icon: iconValue(input.icon),
     color,
     scribeEmbed: scribe(input.scribeEmbed),
     steps: Number.isInteger(input.steps) && input.steps > 0 && input.steps < 1000 ? input.steps : undefined,
@@ -62,7 +68,7 @@ export function normalizePage(input) {
       style: s && s.style === 'accordion' ? 'accordion' : 'plain',
       title: str(s && s.title, 200),
       subtitle: str(s && s.subtitle, 300),
-      icon: str(s && s.icon, 16),
+      icon: iconValue(s && s.icon),
       tone: TONES.includes(s && s.tone) ? s.tone : 'red',
       text: str(s && s.text, 20000),
       causesTitle: str(s && s.causesTitle, 60),

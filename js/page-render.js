@@ -189,7 +189,7 @@
       html += `
         <details class="error-accordion"${firstAccordion ? ' open' : ''}>
           <summary class="error-accordion-header">
-            ${sec.icon ? `<div class="error-accordion-icon" style="background: ${bg}; color: ${fg};">${esc(sec.icon)}</div>` : ''}
+            ${sec.icon ? `<div class="error-accordion-icon" style="background: ${bg}; color: ${fg};">${icon(sec.icon)}</div>` : ''}
             <div class="error-accordion-info">
               <h2>${inline(sec.title)}</h2>
               ${sec.subtitle ? `<p>${inline(sec.subtitle)}</p>` : ''}
@@ -203,5 +203,12 @@
     return html || '<p style="color: var(--text-muted);">This page has no content yet.</p>';
   }
 
-  window.WikiRender = { render, esc, fmt, TONES };
+  // An icon is an emoji, or an image uploaded in the editor (/api/img/…).
+  const ICON_IMG = /^(\/api\/img\/[a-z0-9]{6,32}|\/?(images|img)\/[\w\-./]+\.(png|jpe?g|gif|webp|svg))$/i;
+  function icon(value) {
+    if (!value) return '';
+    return ICON_IMG.test(value) ? `<img class="wk-icon-img" src="${esc(value)}" alt="">` : esc(value);
+  }
+
+  window.WikiRender = { render, esc, fmt, icon, TONES };
 })();
