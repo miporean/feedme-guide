@@ -133,7 +133,7 @@
     const link = document.createElement('link');
     link.id = 'wkeCss';
     link.rel = 'stylesheet';
-    link.href = 'css/editor.css?v=12';
+    link.href = 'css/editor.css?v=13';
     document.head.appendChild(link);
   }
 

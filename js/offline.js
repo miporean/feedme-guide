@@ -13,7 +13,10 @@
     e.preventDefault();
     installPrompt = e;
   });
-  window.addEventListener('appinstalled', () => { installPrompt = null; });
+  window.addEventListener('appinstalled', () => {
+    installPrompt = null;
+    if (dialog) setInstall(dialog, '<p>' + INSTALLED_TEXT() + '</p>', 'done');
+  });
 
   const isApp = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -105,10 +108,12 @@
         <button type="button" class="wk-dl-close" aria-label="Close">✕</button>
         <img src="/img/wiki-icon-192.png" alt="" width="56" height="56" class="wk-dl-icon">
         <h2 id="wkDlTitle">Download FeedMe Wiki</h2>
-        <p class="wk-dl-text">Saving every guide and photo on this device, so you can use it without internet.</p>
-        <div class="wk-dl-bar"><div class="wk-dl-fill"></div></div>
-        <p class="wk-dl-status">Getting ready…</p>
         <div class="wk-dl-install"></div>
+        <div class="wk-dl-offline">
+          <p class="wk-dl-text">Saving every guide and photo on this device, so it works without internet.</p>
+          <div class="wk-dl-bar"><div class="wk-dl-fill"></div></div>
+          <p class="wk-dl-status">Getting ready…</p>
+        </div>
       </div>`;
     document.body.appendChild(dialog);
     const close = () => { dialog.remove(); dialog = null; };
@@ -117,30 +122,73 @@
     return dialog;
   }
 
-  function installHelp(box) {
+  // ---- Installing the app
+  const ua = navigator.userAgent;
+  const isAndroid = () => /android/i.test(ua);
+  // WhatsApp / Facebook / Instagram / LINE etc. open links in their own
+  // browser, which cannot install apps.
+  const isInAppBrowser = () => /FBAN|FBAV|Instagram|Line\/|WhatsApp|MicroMessenger|; wv\)/i.test(ua);
+  const isFirefox = () => /firefox|fxios/i.test(ua);
+
+  const INSTALLED_TEXT = () => isAndroid() || isIOS()
+    ? '✓ Installed. Find <strong>FeedMe Wiki</strong> on your home screen or in your app list.'
+    : '✓ Installed. Find <strong>FeedMe Wiki</strong> in your Start menu or on your desktop. It opens in its own window.';
+
+  function setInstall(box, html, kind) {
     const el = box.querySelector('.wk-dl-install');
-    if (isApp()) {
-      el.innerHTML = '<p>You are using the app. Guides update automatically whenever you are online.</p>';
-    } else if (installPrompt) {
-      el.innerHTML = '<p>Add it to your home screen to open it like an app:</p><button type="button" class="wk-btn wk-btn-primary">📲 Install app</button>';
-      el.querySelector('button').addEventListener('click', async () => {
-        const p = installPrompt;
-        installPrompt = null;
-        p.prompt();
-        const choice = await p.userChoice.catch(() => ({}));
-        el.innerHTML = choice.outcome === 'accepted'
-          ? '<p>✓ Installed. Open <strong>FeedMe Wiki</strong> from your home screen.</p>'
-          : '<p>You can still open this website without internet in this browser.</p>';
-      });
-    } else if (isIOS()) {
-      el.innerHTML = '<p>To add it to your home screen: tap <strong>Share</strong> <span class="wk-dl-share">⬆</span> at the bottom of Safari, then <strong>Add to Home Screen</strong>.</p>';
-    } else {
-      el.innerHTML = '<p>To add it to your home screen, open your browser menu (⋮) and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>. You can also just open this website without internet in this browser.</p>';
+    el.className = 'wk-dl-install' + (kind ? ' wk-dl-install-' + kind : '');
+    el.innerHTML = html;
+  }
+
+  // Steps for when the browser cannot show its own "Install" box.
+  function manualSteps() {
+    if (isInAppBrowser()) {
+      return '<p><strong>This page is open inside another app</strong> (e.g. WhatsApp), which cannot install apps.</p>' +
+        '<ol><li>Tap <strong>⋮</strong> (top right)</li><li>Choose <strong>Open in Chrome</strong> / <strong>Open in browser</strong></li><li>Tap <strong>Download app</strong> again</li></ol>';
     }
+    if (isIOS()) {
+      return '<p><strong>To install on iPhone / iPad:</strong></p>' +
+        '<ol><li>Tap <strong>Share</strong> <span class="wk-dl-share">⬆</span> (bottom of Safari)</li><li>Tap <strong>Add to Home Screen</strong></li><li>Tap <strong>Add</strong></li></ol>';
+    }
+    if (isFirefox()) {
+      return '<p>This browser cannot install apps. Open this page in <strong>Chrome</strong> or <strong>Edge</strong> to install it. It already works offline in this browser.</p>';
+    }
+    if (isAndroid()) {
+      return '<p><strong>To install:</strong></p>' +
+        '<ol><li>Tap <strong>⋮</strong> (top right of Chrome)</li><li>Tap <strong>Install app</strong> or <strong>Add to Home screen</strong></li><li>Tap <strong>Install</strong></li></ol>' +
+        '<p class="wk-dl-small">Already installed? Open <strong>FeedMe Wiki</strong> from your app list.</p>';
+    }
+    return '<p><strong>To install:</strong></p>' +
+      '<ol><li>Click the <strong>Install</strong> icon <span class="wk-dl-share">⊕</span> at the right end of the address bar</li>' +
+      '<li>Or open the browser menu <strong>⋯</strong> → <strong>Apps</strong> / <strong>Cast, save and share</strong> → <strong>Install FeedMe Wiki</strong></li></ol>' +
+      '<p class="wk-dl-small">Already installed? Open <strong>FeedMe Wiki</strong> from the Start menu.</p>';
+  }
+
+  // Must run straight from the button click: browsers only show their
+  // install box in direct response to a tap/click.
+  function startInstall(box) {
+    if (isApp()) {
+      setInstall(box, '<p>You are using the app. Guides update automatically whenever you are online.</p>', 'done');
+      return;
+    }
+    const prompt = installPrompt;
+    if (!prompt) {
+      setInstall(box, manualSteps(), 'steps');
+      return;
+    }
+    installPrompt = null;
+    setInstall(box, '<p>Click <strong>Install</strong> in the box your browser is showing.</p>', 'waiting');
+    prompt.prompt();
+    prompt.userChoice.then(choice => {
+      if (!box.isConnected) return;
+      if (choice.outcome === 'accepted') setInstall(box, '<p>' + INSTALLED_TEXT() + '</p>', 'done');
+      else setInstall(box, '<p>Not installed. You can install it any time:</p>' + manualSteps().replace(/^<p><strong>To install:<\/strong><\/p>/, ''), 'steps');
+    }).catch(() => setInstall(box, manualSteps(), 'steps'));
   }
 
   async function download() {
     const box = openDialog();
+    startInstall(box);
     const fill = box.querySelector('.wk-dl-fill');
     const status = box.querySelector('.wk-dl-status');
     if (!navigator.onLine) {
@@ -165,7 +213,6 @@
       }
       try { localStorage.setItem('wikiOffline', '1'); } catch (e) {}
       updateButton();
-      installHelp(box);
     } catch (e) {
       status.textContent = 'Download failed: ' + e.message;
       box.classList.add('wk-dl-error');

@@ -1754,3 +1754,66 @@ img {
 .header.wk-compact .wk-dl-btn {
   margin: 8px 0 0;
 }
+
+/* Download dialog: install section first, offline saving underneath */
+.wk-dl-box .wk-dl-install {
+  margin: 14px 0 0;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--bg-subtle);
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.wk-dl-box .wk-dl-install p {
+  color: var(--text);
+}
+
+.wk-dl-box .wk-dl-install ol {
+  margin: 6px 0 4px 20px;
+}
+
+.wk-dl-box .wk-dl-install li {
+  margin: 3px 0;
+}
+
+.wk-dl-install-waiting {
+  border: 2px solid var(--primary);
+  text-align: center !important;
+}
+
+.wk-dl-install-done {
+  background: #F0FDF4 !important;
+  color: #15803D !important;
+}
+
+.wk-dl-install-done p {
+  color: #15803D !important;
+  font-weight: 600;
+}
+
+.wk-dl-small {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-secondary) !important;
+}
+
+.wk-dl-offline {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.wk-dl-offline .wk-dl-text {
+  font-size: 13px;
+}
+
+.wk-dl-offline .wk-dl-bar {
+  margin: 10px 0 8px;
+}
+
+.wk-dl-offline .wk-dl-status {
+  font-size: 13px;
+}
