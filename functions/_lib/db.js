@@ -19,6 +19,16 @@ export async function db(env) {
         updated_at TEXT NOT NULL,
         updated_by TEXT
       )`),
+      // Pages and categories staff deleted. Nothing is erased, so the Staff
+      // page can restore them.
+      env.DB.prepare(`CREATE TABLE IF NOT EXISTS wiki_deleted (
+        kind TEXT NOT NULL,
+        id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        deleted_at TEXT NOT NULL,
+        deleted_by TEXT,
+        PRIMARY KEY (kind, id)
+      )`),
       env.DB.prepare(`CREATE TABLE IF NOT EXISTS wiki_images (
         id TEXT PRIMARY KEY,
         mime TEXT NOT NULL,
@@ -54,6 +64,16 @@ export function randomId(len = 10) {
   const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
   const bytes = crypto.getRandomValues(new Uint8Array(len));
   return Array.from(bytes, b => alphabet[b % alphabet.length]).join('');
+}
+
+// Deleted pages and categories.
+export async function getDeleted(DB) {
+  const { results } = await DB.prepare('SELECT * FROM wiki_deleted ORDER BY deleted_at DESC').all();
+  return {
+    trash: results.map(r => ({ kind: r.kind, id: r.id, title: r.title, deletedAt: r.deleted_at, deletedBy: r.deleted_by })),
+    pages: new Set(results.filter(r => r.kind === 'page').map(r => r.id)),
+    categories: results.filter(r => r.kind === 'category').map(r => r.id)
+  };
 }
 
 export function rowToPage(row) {

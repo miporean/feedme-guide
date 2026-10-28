@@ -70,6 +70,15 @@
     return POS_CATS.includes(catId);
   }
 
+  // Categories inside each top-level section (home cards and top menu).
+  function sectionCats(sectionId) {
+    if (sectionId === 'pos' || sectionId === 'troubleshooting') {
+      const cat = findCategory(sectionId === 'pos' ? 'pos-setup' : 'troubleshooting');
+      return cat ? [cat] : [];
+    }
+    return SITE_DATA.categories.filter(c => c.section === sectionId);
+  }
+
   // Top-nav section a category belongs to.
   function navSection(catId) {
     return isPortalCategory(catId) ? 'portal' : isIntegrationCategory(catId) ? 'integration' : isPosCategory(catId) ? 'pos' : catId;
@@ -120,6 +129,15 @@
     back: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>',
     search: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
   };
+
+  // Staff-only "Delete category" button for a category page.
+  function categoryActions(cat) {
+    if (!admin || !cat) return '';
+    return `
+        <div class="wk-admin-actions">
+          <button type="button" class="wk-btn wk-btn-danger" data-delete-category="${cat.id}">🗑 Delete category</button>
+        </div>`;
+  }
 
   // ===== ARTICLE CARD GRID =====
   function articleGrid(cat) {
@@ -207,7 +225,7 @@
         description: 'Common issues and solutions for printers, connectivity, and more.',
         count: tsArticleCount
       }
-    ];
+    ].filter(sec => sectionCats(sec.id).length); // hide sections whose categories were all deleted
 
     // Popular articles from all categories
     const popularArticles = [];
@@ -290,6 +308,7 @@
             <p class="subtitle">${cat.description}</p>
           </div>
         </div>
+        ${categoryActions(cat)}
       </section>
 
       <section class="category-articles">
@@ -370,6 +389,7 @@
             <p class="subtitle">Setup guides and tutorials for FeedMe POS system.</p>
           </div>
         </div>
+        ${categoryActions(posCat)}
       </section>
 
       <section class="category-articles">
@@ -409,6 +429,7 @@
             <p class="subtitle">${cat.description}</p>
           </div>
         </div>
+        ${categoryActions(cat)}
       </section>
 
       <section class="category-articles">
@@ -423,6 +444,7 @@
   // ===== RENDER CATEGORY PAGE =====
   function renderCategory(catId) {
     // Handle virtual categories
+    if (['portal', 'pos', 'integration'].includes(catId) && !sectionCats(catId).length) { renderHome(); return; }
     if (catId === 'portal') { return renderPortal(); }
     if (catId === 'pos') { return renderPOS(); }
     if (catId === 'integration') { return renderIntegration(); }
@@ -448,6 +470,7 @@
             <p class="subtitle">${cat.description}</p>
           </div>
         </div>
+        ${categoryActions(cat)}
       </section>
 
       <section class="category-articles">
@@ -528,9 +551,8 @@
             ${article.draft ? '<span class="wk-draft-badge">Hidden — customers cannot see this page</span>' : ''}
             ${article.edited ? `<span class="wk-edited-badge" title="${WikiRender.esc(article.page.updatedBy || '')}">Edited${article.page.updatedAt ? ' ' + new Date(article.page.updatedAt).toLocaleDateString() : ''}</span>` : ''}
             <button type="button" class="wk-btn" data-edit-page="${article.id}">✏️ Edit page</button>
-            ${article.builtin
-              ? (article.edited ? `<button type="button" class="wk-btn wk-btn-danger" data-restore-page="${article.id}">↺ Restore original</button>` : '')
-              : `<button type="button" class="wk-btn wk-btn-danger" data-delete-page="${article.id}">🗑 Delete</button>`}
+            ${article.builtin && article.edited ? `<button type="button" class="wk-btn wk-btn-danger" data-restore-page="${article.id}">↺ Restore original</button>` : ''}
+            <button type="button" class="wk-btn wk-btn-danger" data-delete-page="${article.id}">🗑 Delete page</button>
           </div>` : ''}
 
         <h1>${article.title}</h1>
@@ -685,6 +707,9 @@
     document.querySelectorAll('[data-restore-page]').forEach(el => {
       el.addEventListener('click', () => deletePage(el.getAttribute('data-restore-page'), true));
     });
+    document.querySelectorAll('[data-delete-category]').forEach(el => {
+      el.addEventListener('click', () => deleteCategory(el.getAttribute('data-delete-category')));
+    });
 
     // Home page clicks
     document.querySelectorAll('[data-page="home"]').forEach(el => {
@@ -700,6 +725,8 @@
     // Map portal subcategories to 'portal' for nav highlighting
     const navId = navSection(activeId);
     nav.querySelectorAll('a').forEach(a => {
+      const sec = a.getAttribute('data-cat');
+      if (sec) a.hidden = !sectionCats(sec).length; // section deleted
       a.classList.remove('active');
       if (navId === 'home' && a.getAttribute('data-page') === 'home') {
         a.classList.add('active');
@@ -789,17 +816,22 @@
   }));
   const BUILTIN_IDS = new Set(BUILTIN.flatMap(c => c.pages.map(p => p.id)));
 
+  const ALL_CATEGORIES = SITE_DATA.categories.slice();
+
   // Rebuild every category: built-in pages, replaced by their edited copy if
-  // there is one, then pages created in the editor.
-  function mergePages(pages, hidden) {
+  // there is one, then pages created in the editor. Deleted categories (and
+  // the pages in them) are left out.
+  function mergePages(pages, hidden, deletedCategories) {
     const byId = new Map(pages.map(p => [p.id, p]));
     const hiddenIds = new Set(hidden || []);
-    SITE_DATA.categories.forEach(cat => { cat.articles = []; });
+    const deletedCats = new Set(deletedCategories || []);
+    SITE_DATA.categories = ALL_CATEGORIES.filter(cat => !deletedCats.has(cat.id));
+    ALL_CATEGORIES.forEach(cat => { cat.articles = []; });
     BUILTIN.forEach(({ pages: list }) => list.forEach(orig => {
       if (hiddenIds.has(orig.id)) return;
       const edited = byId.get(orig.id);
       const page = edited || orig;
-      const cat = findCategory(page.category) || findCategory(orig.category);
+      const cat = findCategory(page.category);
       if (cat) cat.articles.push(toArticle(page, { builtin: true, edited: !!edited }));
     }));
     pages.forEach(page => {
@@ -822,7 +854,7 @@
     try {
       data = await getJson(admin ? '/admin/api/pages' : '/api/pages');
     } catch (e) { /* editor storage not set up yet — built-in pages still work */ }
-    mergePages(data.pages || [], data.hidden);
+    mergePages(data.pages || [], data.hidden, data.deletedCategories);
     customLoaded = true;
     renderAdminBar();
     render();
@@ -836,7 +868,7 @@
 
   async function reloadCustomPages() {
     const data = await getJson('/admin/api/pages');
-    mergePages(data.pages || []);
+    mergePages(data.pages || [], data.hidden, data.deletedCategories);
   }
 
   // ===== MIPOS STAFF TOOLS =====
@@ -873,7 +905,7 @@
     if (!editorLoading) {
       editorLoading = new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = 'js/editor.js?v=5';
+        s.src = 'js/editor.js?v=6';
         s.onload = resolve;
         s.onerror = () => { editorLoading = null; reject(new Error('Could not load the editor')); };
         document.head.appendChild(s);
@@ -885,9 +917,10 @@
   async function openEditor(page, categoryId) {
     if (!admin) return;
     try { await loadEditor(); } catch (e) { alert(e.message); return; }
+    if (!SITE_DATA.categories.length) { alert('All categories are deleted. Restore one from the Staff page first.'); return; }
     window.WikiEditor.open({
       page: page ? Object.assign({}, page, { builtin: BUILTIN_IDS.has(page.id) }) : null,
-      categoryId,
+      categoryId: findCategory(categoryId) ? categoryId : SITE_DATA.categories[0].id,
       categories: SITE_DATA.categories.map(c => ({ id: c.id, name: c.name, section: c.section, color: c.color })),
       onSaved: async saved => {
         await reloadCustomPages();
@@ -896,20 +929,56 @@
     });
   }
 
-  // Deletes a staff-made page, or (restore = true) drops the edited copy of a built-in page.
+  // Moves a page or category to the Staff page's "Deleted" list.
+  async function moveToTrash(kind, id, title) {
+    const res = await fetch('/admin/api/trash', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', kind, id, title })
+    });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Delete failed');
+  }
+
+  // Deletes a page (restorable from the Staff page), or (restore = true) drops
+  // the edited copy of a built-in page.
   async function deletePage(id, restore) {
     const found = findArticle(id);
     if (!found) return;
+    const title = found.article.page.title;
     const question = restore
-      ? `Restore "${found.article.page.title}" to the original version?\n\nAll changes made in the editor will be lost.`
-      : `Delete "${found.article.page.title}"?\n\nThis cannot be undone.`;
+      ? `Restore "${title}" to the original version?\n\nAll changes made in the editor will be lost.`
+      : `Delete "${title}"?\n\nCustomers will no longer see this page. You can bring it back from the Staff page (Deleted).`;
     if (!confirm(question)) return;
     try {
-      const res = await fetch('/admin/api/pages/' + encodeURIComponent(id), { method: 'DELETE', credentials: 'same-origin' });
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Delete failed');
+      if (restore) {
+        const res = await fetch('/admin/api/pages/' + encodeURIComponent(id), { method: 'DELETE', credentials: 'same-origin' });
+        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Restore failed');
+      } else {
+        await moveToTrash('page', id, title);
+      }
       await reloadCustomPages();
       if (restore) navigate({ article: id });
       else navigate({ category: found.category.id });
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
+  async function deleteCategory(id) {
+    const cat = findCategory(id);
+    if (!cat) return;
+    const name = cat.name.replace(/&amp;/g, '&');
+    const n = cat.articles.length;
+    const question = `Delete the category "${name}"` + (n ? ` and its ${n} page${n === 1 ? '' : 's'}?` : '?') +
+      `\n\nCustomers will no longer see it. You can bring it back from the Staff page (Deleted).`;
+    if (!confirm(question)) return;
+    try {
+      await moveToTrash('category', id, name);
+      await reloadCustomPages();
+      renderAdminBar();
+      const sec = navSection(id);
+      navigate(sec !== id && sectionCats(sec).length ? { category: sec } : {});
     } catch (e) {
       alert(e.message);
     }

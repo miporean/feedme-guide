@@ -1,13 +1,22 @@
 // Admin: list all pages (including drafts) and create/update a page.
-import { db, json, handleError, rowToPage, randomId, HttpError } from '../../_lib/db.js';
+import { db, json, handleError, rowToPage, randomId, HttpError, getDeleted } from '../../_lib/db.js';
 import { normalizePage, slugify } from '../../_lib/page.js';
 
+// Deleted pages and categories are left out of the wiki and listed in `trash`
+// so the Staff page can restore them.
 export async function onRequestGet({ env }) {
   try {
-    const { results } = await (await db(env))
+    const DB = await db(env);
+    const deleted = await getDeleted(DB);
+    const { results } = await DB
       .prepare('SELECT * FROM wiki_pages ORDER BY created_at')
       .all();
-    return json({ pages: results.map(rowToPage) });
+    return json({
+      pages: results.filter(r => !deleted.pages.has(r.id)).map(rowToPage),
+      hidden: [...deleted.pages],
+      deletedCategories: deleted.categories,
+      trash: deleted.trash
+    });
   } catch (e) {
     return handleError(e);
   }

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css?v=5">
+  <link rel="stylesheet" href="/css/styles.css?v=6">
   <link rel="icon" href="/img/mipos-logo.svg" type="image/svg+xml">
   <style>
     .adm { max-width: 860px; margin: 0 auto; padding: 40px 20px 80px; }
@@ -31,6 +31,7 @@
     .adm-list a:hover { color: var(--primary); }
     .adm-meta { color: var(--text-muted); font-size: 12px; margin-left: auto; }
     .adm-empty { color: var(--text-muted); font-size: 14px; }
+    .adm-list .wk-btn { padding: 4px 12px; font-size: 13px; }
   </style>
 </head>
 
@@ -69,6 +70,12 @@
       <h2>Pages changed by staff</h2>
       <ul class="adm-list" id="pages"><li class="adm-empty">Loading…</li></ul>
     </section>
+
+    <section class="adm-card">
+      <h2>Deleted</h2>
+      <p class="adm-detail" style="margin: -4px 0 8px;">Pages and categories deleted from the wiki. Customers cannot see them. Restore puts them back.</p>
+      <ul class="adm-list" id="trash"><li class="adm-empty">Loading…</li></ul>
+    </section>
   </main>
 
   <script>
@@ -105,9 +112,50 @@
         })
         .then(function (me) {
           setStatus(true, 'Signed in as ' + me.email, 'Edit tools are switched on for this browser.');
-          return fetch('/admin/api/pages', { cache: 'no-store', credentials: 'same-origin' }).then(function (r) { return r.json(); });
+          return loadLists();
         })
-        .then(function (data) {
+        .catch(function (err) {
+          setStatus(false, 'Edit tools are not available', err.message);
+          document.getElementById('pages').innerHTML = '<li class="adm-empty">—</li>';
+          document.getElementById('trash').innerHTML = '<li class="adm-empty">—</li>';
+        });
+
+      function loadLists() {
+        return fetch('/admin/api/pages', { cache: 'no-store', credentials: 'same-origin' })
+          .then(function (r) { return r.json(); })
+          .then(function (data) { renderPages(data); renderTrash(data); });
+      }
+
+      function renderTrash(data) {
+        var items = (data && data.trash) || [];
+        var list = document.getElementById('trash');
+        if (!items.length) {
+          list.innerHTML = '<li class="adm-empty">Nothing deleted.</li>';
+          return;
+        }
+        list.innerHTML = items.map(function (t, i) {
+          var when = t.deletedAt ? new Date(t.deletedAt).toLocaleString() : '';
+          return '<li><strong>' + esc(t.title) + '</strong> <span class="wk-draft-badge">' + (t.kind === 'category' ? 'Category' : 'Page') + '</span>' +
+            '<span class="adm-meta">' + esc(when) + (t.deletedBy ? ' · ' + esc(t.deletedBy) : '') + '</span>' +
+            '<button type="button" class="wk-btn" data-restore="' + i + '">↺ Restore</button></li>';
+        }).join('');
+        list.querySelectorAll('[data-restore]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var t = items[+btn.getAttribute('data-restore')];
+            btn.disabled = true;
+            fetch('/admin/api/trash', {
+              method: 'POST',
+              credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'restore', kind: t.kind, id: t.id })
+            })
+              .then(function (r) { if (!r.ok) throw new Error('Restore failed (' + r.status + ')'); return loadLists(); })
+              .catch(function (e) { alert(e.message); btn.disabled = false; });
+          });
+        });
+      }
+
+      function renderPages(data) {
           var pages = (data && data.pages) || [];
           var list = document.getElementById('pages');
           if (!pages.length) {
@@ -122,11 +170,7 @@
             return '<li><a href="/?article=' + encodeURIComponent(p.id) + '">' + esc(p.title) + '</a> ' + badges +
               '<span class="adm-meta">' + esc(when) + (p.updatedBy ? ' · ' + esc(p.updatedBy) : '') + '</span></li>';
           }).join('');
-        })
-        .catch(function (err) {
-          setStatus(false, 'Edit tools are not available', err.message);
-          document.getElementById('pages').innerHTML = '<li class="adm-empty">—</li>';
-        });
+      }
     })();
   </script>
 </body>
