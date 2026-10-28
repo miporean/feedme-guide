@@ -897,8 +897,9 @@
   // every save is checked again on the server.
   function renderAdminBar() {
     // Staff tools sit at the start of the top menu, before Home.
+    // Only for a signed-in staff member; staff sign in from /admin.
     let bar = document.getElementById('wkNavStaff');
-    if (!isStaffBrowser()) { if (bar) bar.remove(); return; }
+    if (!admin) { if (bar) bar.remove(); fitHeader(); return; }
     if (!bar) {
       bar = document.createElement('span');
       bar.id = 'wkNavStaff';
@@ -915,8 +916,6 @@
         const cat = getParams().category;
         openEditor(null, findCategory(cat) ? cat : (cat === 'pos' ? 'pos-setup' : null));
       });
-    } else {
-      bar.innerHTML = `<a class="wk-nav-staff-link" href="/admin/">Staff login</a>`;
     }
     fitHeader();
   }
@@ -927,7 +926,7 @@
     if (!editorLoading) {
       editorLoading = new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = 'js/editor.js?v=11';
+        s.src = 'js/editor.js?v=12';
         s.onload = resolve;
         s.onerror = () => { editorLoading = null; reject(new Error('Could not load the editor')); };
         document.head.appendChild(s);

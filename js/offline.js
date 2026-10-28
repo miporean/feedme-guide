@@ -179,11 +179,12 @@
   btn.className = 'wk-dl-btn';
   btn.id = 'wkDownload';
   nav.appendChild(btn);
-  // Only shown until the first download; after that updates are automatic.
+  // Shown in the browser; hidden inside the installed app. Saved copies
+  // update automatically, so there is no "update" button.
   function updateButton() {
     btn.innerHTML = '📥 Download app';
     btn.title = 'Save all guides and photos to use without internet';
-    btn.hidden = isApp() || saved();
+    btn.hidden = isApp();
     if (window.wikiFitHeader) window.wikiFitHeader();
   }
   updateButton();
