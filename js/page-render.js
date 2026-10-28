@@ -189,7 +189,7 @@
       html += `
         <details class="error-accordion"${firstAccordion ? ' open' : ''}>
           <summary class="error-accordion-header">
-            <div class="error-accordion-icon" style="background: ${bg}; color: ${fg};">${esc(sec.icon || '⚠️')}</div>
+            ${sec.icon ? `<div class="error-accordion-icon" style="background: ${bg}; color: ${fg};">${esc(sec.icon)}</div>` : ''}
             <div class="error-accordion-info">
               <h2>${inline(sec.title)}</h2>
               ${sec.subtitle ? `<p>${inline(sec.subtitle)}</p>` : ''}

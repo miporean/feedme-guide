@@ -22,7 +22,7 @@
   // ---------- blank building blocks ----------
   const blankStep = () => ({ title: '', text: '', note: '', images: [] });
   const blankPhase = n => ({ label: 'Phase ' + n, title: '', restart: false, letters: false, steps: [blankStep()] });
-  const blankSection = () => ({ style: 'accordion', title: '', subtitle: '', icon: '⚠️', tone: 'red', text: '', errors: [], causes: [], causesTitle: '', images: [], phases: [blankPhase(1)] });
+  const blankSection = () => ({ style: 'accordion', title: '', subtitle: '', icon: '', tone: 'red', text: '', errors: [], causes: [], causesTitle: '', images: [], phases: [blankPhase(1)] });
   const BLANKS = { step: blankStep, phase: () => blankPhase(1), section: blankSection };
 
   // Built-in pages omit empty fields; fill them in so every input has a value.
@@ -131,7 +131,7 @@
     const link = document.createElement('link');
     link.id = 'wkeCss';
     link.rel = 'stylesheet';
-    link.href = 'css/editor.css?v=4';
+    link.href = 'css/editor.css?v=5';
     document.head.appendChild(link);
   }
 
@@ -309,7 +309,7 @@
         </div>
         ${box ? `
           <div class="wke-grid wke-grid-sec">
-            ${field('Icon', `${p}.icon`, sec.icon, 'maxlength="16" placeholder="⏱️"')}
+            ${field('Icon (optional)', `${p}.icon`, sec.icon, 'maxlength="16" placeholder="None"')}
             <label class="wke-field">
               <span>Icon colour</span>
               <select data-path="${p}.tone">
